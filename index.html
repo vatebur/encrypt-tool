@@ -4,6 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Local Encryption Tool</title>
+<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
 <link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -409,8 +410,24 @@ function enableButtons(){
 async function initSodium(){
   try{
     if(!sodiumLib){
-      const mod = await import("https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.8.2/+esm")
-      sodiumLib = mod.default || mod
+      const urls = [
+        "https://cdn.jsdmirror.com/npm/libsodium-wrappers@0.8.2/+esm",
+        "https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.8.2/+esm"
+      ]
+      let lastErr = null
+      for(const url of urls){
+        try{
+          const mod = await import(url)
+          sodiumLib = mod.default || mod
+          lastErr = null
+          break
+        }catch(err){
+          lastErr = err
+        }
+      }
+      if(!sodiumLib && lastErr){
+        throw lastErr
+      }
     }
     await sodiumLib.ready
     sodiumReady = true
