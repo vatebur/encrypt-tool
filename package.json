@@ -1,0 +1,15 @@
+{
+  "name": "encryption-tool",
+  "displayName": "Encryption Tool",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Browser-based encryption tool",
+  "devDependencies": {
+    "wrangler": "^4.71.0"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "dev:remote": "wrangler dev --remote",
+    "deploy": "wrangler deploy"
+  }
+}
