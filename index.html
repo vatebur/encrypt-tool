@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Local Encryption Tool</title>
+<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
+<style>
+:root{
+  --bg:#0b0f14;
+  --panel:#121822;
+  --panel-2:#0f141d;
+  --text:#eef2f8;
+  --muted:#a8b3c7;
+  --border:#1e2734;
+  --accent:#22c55e;
+  --danger:#ef4444;
+  --shadow:0 20px 40px rgba(0,0,0,.35);
+  --radius:16px;
+}
+:root.light{
+  --bg:#f4f5f7;
+  --panel:#ffffff;
+  --panel-2:#f0f2f5;
+  --text:#0d0f13;
+  --muted:#3d434d;
+  --border:#d9dde4;
+  --accent:#16a34a;
+  --danger:#c81e1e;
+  --shadow:0 16px 30px rgba(0,0,0,.08);
+}
+*{box-sizing:border-box;}
+body{
+  margin:0;
+  font-family:system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+}
+.container{
+  max-width:880px;
+  margin:32px auto 64px;
+  padding:0 18px;
+}
+.header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:16px;
+  margin-bottom:20px;
+}
+.title{
+  font-size:24px;
+  margin:0;
+}
+.subtle{
+  color:var(--muted);
+  font-size:12px;
+}
+.badge{
+  display:inline-flex;
+  align-items:center;
+  gap:6px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  border:1px solid var(--border);
+  color:var(--muted);
+  background:var(--panel-2);
+}
+.badge.ok{color:#0b3d1f;background:color-mix(in srgb, var(--accent) 15%, var(--panel-2));border-color:color-mix(in srgb, var(--accent) 40%, var(--border));}
+:root:not(.light) .badge.ok{color:#b9f5cd;}
+.card{
+  background:var(--panel);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  padding:20px;
+  box-shadow:var(--shadow);
+}
+.section-title{
+  font-size:16px;
+  margin:0 0 12px;
+}
+.label{
+  font-size:11px;
+  letter-spacing:.4px;
+  text-transform:uppercase;
+  color:var(--muted);
+  margin:10px 0 6px;
+}
+.label.strong{color:var(--text);}
+.input, .textarea{
+  width:100%;
+  border:1px solid var(--border);
+  background:var(--panel-2);
+  color:var(--text);
+  padding:10px 12px;
+  border-radius:10px;
+  font-size:13px;
+  outline:none;
+}
+.textarea{height:140px;resize:none;}
+.mono{font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;font-size:12px;}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+@media (max-width:720px){.row{grid-template-columns:1fr;}}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px;}
+.btn{
+  border:none;
+  border-radius:10px;
+  padding:10px 14px;
+  font-size:13px;
+  font-weight:600;
+  cursor:pointer;
+}
+.btn.primary{background:#1f2937;color:#fff;}
+:root:not(.light) .btn.primary{background:#f3f4f6;color:#0b0f14;}
+.btn.secondary{background:#1f2937;color:#fff;border:1px solid #1f2937;}
+:root:not(.light) .btn.secondary{background:#f3f4f6;color:#0b0f14;border:1px solid #f3f4f6;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.notice{
+  margin-top:10px;
+  padding:8px 10px;
+  border-radius:10px;
+  font-size:12px;
+  border:1px solid color-mix(in srgb, var(--danger) 60%, var(--border));
+  background:color-mix(in srgb, var(--danger) 18%, var(--panel));
+  color:color-mix(in srgb, var(--danger) 85%, var(--text));
+  display:none;
+}
+.notice.show{display:block;}
+.switch{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+}
+.toggle{
+  width:48px;height:24px;border-radius:999px;border:1px solid var(--border);
+  background:var(--panel-2);position:relative;cursor:pointer;
+}
+.toggle::after{
+  content:"";position:absolute;top:2px;left:2px;width:18px;height:18px;border-radius:50%;background:#0b0f14;transition:transform .2s ease, background .2s ease;
+}
+:root.light .toggle::after{transform:translateX(24px);background:#fff;}
+.hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="container">
+  <div class="header">
+    <div>
+      <h1 class="title">Local Encryption Tool</h1>
+      <div class="subtle">All operations happen locally in your browser.</div>
+    </div>
+    <div class="switch">
+      <span class="subtle" id="themeLabel">Light</span>
+      <button id="themeToggle" class="toggle" aria-label="Toggle theme"></button>
+      <span id="status" class="badge">Loading crypto engine…</span>
+    </div>
+  </div>
+
+  <section id="decryptPanel" class="card">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <h2 class="section-title">Keypair</h2>
+      <span id="keyBadge" class="badge">Not generated</span>
+    </div>
+
+    <div class="row">
+      <div>
+        <div class="label strong">Public Key</div>
+        <input id="pub" class="input mono" readonly placeholder="Generate a keypair">
+      </div>
+      <div>
+        <div class="label strong">Private Key</div>
+        <input id="priv" class="input mono" readonly placeholder="Keep this private">
+      </div>
+    </div>
+
+    <div class="actions">
+      <button id="genBtn" class="btn primary" disabled>Generate Keypair</button>
+      <button id="copyLink" class="btn secondary" disabled>Copy Share Link</button>
+    </div>
+
+    <hr style="border:none;border-top:1px solid var(--border);margin:16px 0;">
+
+    <h2 class="section-title">Decrypt</h2>
+    <div class="label">Ciphertext</div>
+    <textarea id="decrypt_msg" class="textarea mono" placeholder="Paste ciphertext"></textarea>
+
+    <div class="actions">
+      <button id="decryptBtn" class="btn primary" disabled>Decrypt</button>
+      <button id="copyPlain" class="btn secondary" disabled>Copy Plaintext</button>
+    </div>
+
+    <div class="label">Plaintext</div>
+    <textarea id="decrypt_out" class="textarea" readonly placeholder="Plaintext output"></textarea>
+    <div id="decryptNotice" class="notice"></div>
+  </section>
+
+  <section id="encryptPanel" class="card hidden" style="margin-top:16px;">
+    <div style="display:flex;align-items:center;justify-content:space-between;gap:10px;">
+      <h2 class="section-title">Encrypt</h2>
+      <button id="backToDecrypt" class="btn secondary">Back to Decrypt</button>
+    </div>
+
+    <div class="label strong">Recipient Public Key</div>
+    <input id="encrypt_pub" class="input mono" placeholder="Base64 public key">
+
+    <div class="label">Message</div>
+    <textarea id="encrypt_msg" class="textarea" placeholder="Type a message to encrypt"></textarea>
+
+    <div class="actions">
+      <button id="encryptBtn" class="btn primary" disabled>Encrypt</button>
+      <button id="copyCipher" class="btn secondary" disabled>Copy Ciphertext</button>
+    </div>
+
+    <div class="label">Ciphertext</div>
+    <textarea id="encrypt_out" class="textarea mono" readonly placeholder="Ciphertext output"></textarea>
+    <div id="encryptNotice" class="notice"></div>
+  </section>
+
+  <div id="keyNotice" class="notice" style="margin-top:12px;"></div>
+</div>
+
+<script type="module">
+let sodiumReady = false
+let sodiumLib = null
+
+const ui = {
+  status: document.getElementById("status"),
+  keyBadge: document.getElementById("keyBadge"),
+  keyNotice: document.getElementById("keyNotice"),
+  encryptNotice: document.getElementById("encryptNotice"),
+  decryptNotice: document.getElementById("decryptNotice"),
+  pub: document.getElementById("pub"),
+  priv: document.getElementById("priv"),
+  encryptPub: document.getElementById("encrypt_pub"),
+  encryptMsg: document.getElementById("encrypt_msg"),
+  encryptOut: document.getElementById("encrypt_out"),
+  decryptMsg: document.getElementById("decrypt_msg"),
+  decryptOut: document.getElementById("decrypt_out"),
+  genBtn: document.getElementById("genBtn"),
+  copyLink: document.getElementById("copyLink"),
+  encryptBtn: document.getElementById("encryptBtn"),
+  decryptBtn: document.getElementById("decryptBtn"),
+  copyCipher: document.getElementById("copyCipher"),
+  copyPlain: document.getElementById("copyPlain"),
+  backToDecrypt: document.getElementById("backToDecrypt"),
+  decryptPanel: document.getElementById("decryptPanel"),
+  encryptPanel: document.getElementById("encryptPanel"),
+  themeToggle: document.getElementById("themeToggle"),
+  themeLabel: document.getElementById("themeLabel")
+}
+
+function setStatus(text, ok){
+  ui.status.textContent = text
+  ui.status.classList.toggle("ok", !!ok)
+}
+
+function setNotice(el, text){
+  if(!text){
+    el.textContent = ""
+    el.classList.remove("show")
+    return
+  }
+  el.textContent = text
+  el.classList.add("show")
+}
+
+function enableButtons(){
+  ui.genBtn.disabled = !sodiumReady
+  ui.encryptBtn.disabled = !sodiumReady
+  ui.decryptBtn.disabled = !sodiumReady
+}
+
+async function initSodium(){
+  try{
+    if(!sodiumLib){
+      const mod = await import("https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.8.2/+esm")
+      sodiumLib = mod.default || mod
+    }
+    await sodiumLib.ready
+    sodiumReady = true
+    setStatus("Crypto engine ready", true)
+    enableButtons()
+  }catch(err){
+    setStatus("Crypto engine error", false)
+    setNotice(ui.keyNotice, String(err))
+  }
+}
+
+function safeBase64ToBytes(value){
+  return sodiumLib.from_base64(value.trim())
+}
+
+function safeBytesToBase64(bytes){
+  return sodiumLib.to_base64(bytes)
+}
+
+function updateKeyActions(){
+  const hasPub = ui.pub.value.trim().length > 0
+  const hasPriv = ui.priv.value.trim().length > 0
+  ui.copyLink.disabled = !hasPub
+  ui.keyBadge.textContent = hasPub && hasPriv ? "Ready" : "Not generated"
+  ui.keyBadge.classList.toggle("ok", hasPub && hasPriv)
+}
+
+async function genkey(){
+  if(!sodiumReady) return
+  try{
+    const kp = sodiumLib.crypto_box_keypair()
+    ui.pub.value = safeBytesToBase64(kp.publicKey)
+    ui.priv.value = safeBytesToBase64(kp.privateKey)
+    ui.decryptMsg.value = ""
+    ui.decryptOut.value = ""
+    ui.encryptMsg.value = ""
+    ui.encryptOut.value = ""
+    ui.copyCipher.disabled = true
+    ui.copyPlain.disabled = true
+    updateKeyActions()
+  }catch(err){
+    setNotice(ui.keyNotice, "Keypair generation failed: " + err)
+  }
+}
+
+async function encrypt(){
+  if(!sodiumReady) return
+  try{
+    setNotice(ui.encryptNotice, "")
+    const pub = ui.encryptPub.value.trim()
+    const msg = ui.encryptMsg.value
+    if(!pub || !msg){
+      setNotice(ui.encryptNotice, "Recipient public key and message are required.")
+      return
+    }
+    const publicKey = safeBase64ToBytes(pub)
+    const cipher = sodiumLib.crypto_box_seal(
+      sodiumLib.from_string(msg),
+      publicKey
+    )
+    ui.encryptOut.value = safeBytesToBase64(cipher)
+    ui.copyCipher.disabled = false
+  }catch(err){
+    setNotice(ui.encryptNotice, "Encrypt failed: " + err)
+  }
+}
+
+async function decrypt(){
+  if(!sodiumReady) return
+  try{
+    setNotice(ui.decryptNotice, "")
+    const cipher = ui.decryptMsg.value.trim()
+    if(!cipher){
+      setNotice(ui.decryptNotice, "Ciphertext is required.")
+      return
+    }
+    const pubVal = ui.pub.value.trim()
+    const privVal = ui.priv.value.trim()
+    if(!pubVal || !privVal){
+      setNotice(ui.decryptNotice, "Generate a keypair first.")
+      return
+    }
+    const pubKey = safeBase64ToBytes(pubVal)
+    const privKey = safeBase64ToBytes(privVal)
+    const cipherBytes = safeBase64ToBytes(cipher)
+    const msg = sodiumLib.crypto_box_seal_open(cipherBytes, pubKey, privKey)
+    if(!msg){
+      throw new Error("Decryption failed. Keys may not match ciphertext.")
+    }
+    ui.decryptOut.value = sodiumLib.to_string(msg)
+    ui.copyPlain.disabled = false
+  }catch(err){
+    setNotice(ui.decryptNotice, "Decrypt failed: " + err)
+  }
+}
+
+async function copyValue(value){
+  try{ await navigator.clipboard.writeText(value) }catch{}
+}
+
+ui.genBtn.addEventListener("click", genkey)
+ui.encryptBtn.addEventListener("click", encrypt)
+ui.decryptBtn.addEventListener("click", decrypt)
+ui.copyCipher.addEventListener("click", () => copyValue(ui.encryptOut.value))
+ui.copyPlain.addEventListener("click", () => copyValue(ui.decryptOut.value))
+ui.copyLink.addEventListener("click", () => {
+  const pub = ui.pub.value.trim()
+  if(!pub) return
+  const base = location.origin === "null" ? location.href.split("?")[0] : `${location.origin}${location.pathname}`
+  const link = `${base}?pub=${encodeURIComponent(pub)}`
+  copyValue(link)
+})
+
+ui.backToDecrypt.addEventListener("click", () => {
+  history.replaceState("", document.title, location.pathname)
+  ui.encryptPub.value = ""
+  ui.encryptPanel.classList.add("hidden")
+  ui.decryptPanel.classList.remove("hidden")
+})
+
+const selectable = [ui.pub, ui.priv, ui.encryptPub, ui.encryptMsg, ui.encryptOut, ui.decryptMsg, ui.decryptOut]
+selectable.forEach((el) => el.addEventListener("focus", () => el.select()))
+
+function applyTheme(isLight){
+  document.documentElement.classList.toggle("light", isLight)
+  ui.themeLabel.textContent = isLight ? "Dark" : "Light"
+  localStorage.setItem("theme", isLight ? "light" : "dark")
+}
+
+ui.themeToggle.addEventListener("click", () => {
+  const isLight = !document.documentElement.classList.contains("light")
+  applyTheme(isLight)
+})
+
+window.addEventListener("load", () => {
+  const saved = localStorage.getItem("theme") || "dark"
+  applyTheme(saved === "light")
+
+  const params = new URLSearchParams(location.search)
+  const pubParam = params.get("pub")
+  if(pubParam){
+    ui.encryptPub.value = pubParam
+    ui.encryptPanel.classList.remove("hidden")
+    ui.decryptPanel.classList.add("hidden")
+  }
+
+  updateKeyActions()
+  initSodium().then(() => {
+    if(ui.decryptPanel.classList.contains("hidden")) return
+    genkey()
+  })
+})
+</script>
+</body>
+</html>
