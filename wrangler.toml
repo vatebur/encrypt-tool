@@ -6,3 +6,6 @@ preview_urls = false
 [assets]
 directory = "./public"
 binding = "ASSETS"
+
+[[kv_namespaces]]
+binding = "STORE"
