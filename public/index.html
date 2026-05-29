@@ -411,24 +411,8 @@ function enableButtons(){
 async function initSodium(){
   try{
     if(!sodiumLib){
-      const urls = [
-        "https://cdn.jsdmirror.com/npm/libsodium-wrappers@0.8.2/+esm",
-        "https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.8.2/+esm"
-      ]
-      let lastErr = null
-      for(const url of urls){
-        try{
-          const mod = await import(url)
-          sodiumLib = mod.default || mod
-          lastErr = null
-          break
-        }catch(err){
-          lastErr = err
-        }
-      }
-      if(!sodiumLib && lastErr){
-        throw lastErr
-      }
+      const mod = await import("./vendor/libsodium-wrappers.mjs")
+      sodiumLib = mod.default || mod
     }
     await sodiumLib.ready
     sodiumReady = true
