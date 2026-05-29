@@ -3,7 +3,7 @@
   "displayName": "Encryption Tool",
   "private": true,
   "version": "0.1.0",
-  "description": "Browser-based encryption tool",
+  "description": "Client-side encryption sharing tool for Cloudflare Workers",
   "devDependencies": {
     "wrangler": "^4.71.0"
   },
@@ -11,5 +11,8 @@
     "dev": "wrangler dev",
     "dev:remote": "wrangler dev --remote",
     "deploy": "wrangler deploy"
+  },
+  "dependencies": {
+    "libsodium-wrappers": "^0.8.2"
   }
 }

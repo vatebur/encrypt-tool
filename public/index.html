@@ -5,8 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Encryption Tool</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%94%92%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://cdn.jsdmirror.com" crossorigin>
-<link rel="preconnect" href="https://cdn.jsdelivr.net" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
@@ -281,6 +279,102 @@ body::before{
     repeating-linear-gradient(135deg, rgba(255,255,255,.06), rgba(255,255,255,.06) 6px, transparent 6px, transparent 12px);
   margin:16px 0;
 }
+.record-list{
+  display:grid;
+  gap:8px;
+  margin-top:10px;
+}
+.record-item{
+  width:100%;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  border:1px solid var(--border);
+  border-radius:12px;
+  background:var(--panel-2);
+  color:var(--text);
+  padding:10px 12px;
+  cursor:pointer;
+  text-align:left;
+}
+.record-item:hover{
+  border-color:color-mix(in srgb, var(--accent) 55%, var(--border));
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
+}
+.record-name{
+  overflow:hidden;
+  text-overflow:ellipsis;
+  white-space:nowrap;
+}
+.record-meta{
+  color:var(--muted);
+  font-size:11px;
+  white-space:nowrap;
+}
+.empty-list{
+  color:var(--muted);
+  font-size:12px;
+  margin-top:8px;
+}
+.list-toggle{
+  margin-top:8px;
+}
+.list-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:16px;
+}
+.modal{
+  position:fixed;
+  inset:0;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:18px;
+  background:rgba(0,0,0,.55);
+  z-index:10;
+}
+.modal.hidden{display:none;}
+.modal-box{
+  width:min(520px, 100%);
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  background:var(--panel);
+  box-shadow:var(--shadow);
+  padding:20px;
+}
+.modal-actions{
+  display:flex;
+  gap:8px;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  margin-top:14px;
+}
+.modal-feedback{
+  display:none;
+  margin-top:12px;
+  padding:10px 12px;
+  border-radius:12px;
+  border:1px solid var(--border);
+  background:var(--panel-2);
+  color:var(--text);
+  font-size:12px;
+  line-height:1.4;
+}
+.modal-feedback.show{display:block;}
+.modal-feedback.success{
+  border-color:color-mix(in srgb, var(--accent-2) 58%, var(--border));
+  background:color-mix(in srgb, var(--accent-2) 15%, var(--panel));
+  color:color-mix(in srgb, var(--accent-2) 82%, var(--text));
+}
+.modal-feedback.error{
+  border-color:color-mix(in srgb, var(--danger) 58%, var(--border));
+  background:color-mix(in srgb, var(--danger) 14%, var(--panel));
+  color:color-mix(in srgb, var(--danger) 82%, var(--text));
+}
 </style>
 </head>
 <body>
@@ -314,12 +408,22 @@ body::before{
 
     <div class="actions">
       <button id="genBtn" class="btn primary" disabled>Generate Keypair</button>
-      <button id="copyLink" class="btn secondary copy-btn" disabled>Copy Encrypt Link</button>
+      <button id="encryptLatestKey" class="btn secondary">Encrypt with Latest Public Key</button>
     </div>
 
     <div class="separator"></div>
 
     <h2 class="section-title">Decrypt</h2>
+    <div class="list-head">
+      <div>
+        <h2 class="section-title" style="margin:0;">Stored Ciphertexts</h2>
+        <div class="subtle">Auto refresh every 60 seconds</div>
+      </div>
+      <button id="refreshCiphertexts" class="btn secondary">Refresh Ciphertexts</button>
+    </div>
+    <div id="ciphertextList" class="record-list"></div>
+    <button id="toggleCiphertexts" class="btn secondary list-toggle hidden">Show all</button>
+
     <div class="label">Ciphertext</div>
     <textarea id="decrypt_msg" class="textarea mono" placeholder="Paste ciphertext"></textarea>
 
@@ -339,6 +443,16 @@ body::before{
       <button id="backToDecrypt" class="btn ghost-accent">⟵ Back to Decrypt</button>
     </div>
 
+    <div class="list-head">
+      <div>
+        <h2 class="section-title" style="margin:0;">Public Keys</h2>
+        <div class="subtle">Auto refresh every 60 seconds</div>
+      </div>
+      <button id="refreshPubKeys" class="btn secondary">Refresh Public Keys</button>
+    </div>
+    <div id="publicKeyList" class="record-list"></div>
+    <button id="togglePubKeys" class="btn secondary list-toggle hidden">Show all</button>
+
     <div class="label strong">Recipient Public Key</div>
     <input id="encrypt_pub" class="input mono" placeholder="Base64 public key" readonly>
 
@@ -347,7 +461,6 @@ body::before{
 
     <div class="actions">
       <button id="encryptBtn" class="btn primary" disabled>Encrypt</button>
-      <button id="copyCipher" class="btn secondary copy-btn" disabled>Copy Ciphertext</button>
     </div>
 
     <div class="label">Ciphertext</div>
@@ -358,11 +471,51 @@ body::before{
   <div id="keyNotice" class="notice" style="margin-top:12px;"></div>
 </div>
 
+<div id="keyShareModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="keyShareTitle">
+  <div class="modal-box">
+    <h2 id="keyShareTitle" class="section-title">Share Public Key</h2>
+    <div class="subtle">Name this key, then upload it or copy an encrypt link.</div>
+    <div class="label strong">Public Key Name</div>
+    <input id="keyShareName" class="input" maxlength="80" placeholder="4-digit random name if empty">
+    <div id="keyShareFeedback" class="modal-feedback" role="status" aria-live="polite"></div>
+    <div class="modal-actions">
+      <button id="modalUploadPub" class="btn primary">Upload Public Key</button>
+      <button id="modalCopyLink" class="btn secondary copy-btn">Copy Encrypt Link</button>
+      <button id="modalClose" class="btn secondary">Close</button>
+    </div>
+  </div>
+</div>
+
+<div id="cipherShareModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="cipherShareTitle">
+  <div class="modal-box">
+    <h2 id="cipherShareTitle" class="section-title">Share Ciphertext</h2>
+    <div class="subtle">Name this ciphertext, then upload it to the server or copy it.</div>
+    <div class="label strong">Ciphertext Name</div>
+    <input id="cipherShareName" class="input" maxlength="80" placeholder="4-digit random name if empty">
+    <div id="cipherShareFeedback" class="modal-feedback" role="status" aria-live="polite"></div>
+    <div class="modal-actions">
+      <button id="modalSaveCipher" class="btn primary">Upload Ciphertext</button>
+      <button id="modalCopyCipher" class="btn secondary copy-btn">Copy Ciphertext</button>
+      <button id="cipherModalClose" class="btn secondary">Close</button>
+    </div>
+  </div>
+</div>
+
 <script type="module">
 let sodiumReady = false
 let sodiumLib = null
+const SESSION_PUB_KEY = "receiverPublicKey"
+const SESSION_PRIV_KEY = "receiverPrivateKey"
+const PUBLIC_KEY_REFRESH_MS = 60000
+const CIPHERTEXT_REFRESH_MS = 60000
+const PUBLIC_KEY_COLLAPSED_LIMIT = 3
+const CIPHERTEXT_COLLAPSED_LIMIT = 3
+let publicKeyRecords = []
+let publicKeysExpanded = false
+let ciphertextRecords = []
+let ciphertextsExpanded = false
 
-  const ui = {
+const ui = {
   status: document.getElementById("status"),
   keyNotice: document.getElementById("keyNotice"),
   encryptNotice: document.getElementById("encryptNotice"),
@@ -375,14 +528,31 @@ let sodiumLib = null
   decryptMsg: document.getElementById("decrypt_msg"),
   decryptOut: document.getElementById("decrypt_out"),
   genBtn: document.getElementById("genBtn"),
-  copyLink: document.getElementById("copyLink"),
+  encryptLatestKey: document.getElementById("encryptLatestKey"),
+  refreshPubKeys: document.getElementById("refreshPubKeys"),
   encryptBtn: document.getElementById("encryptBtn"),
   decryptBtn: document.getElementById("decryptBtn"),
-  copyCipher: document.getElementById("copyCipher"),
   copyPlain: document.getElementById("copyPlain"),
+  refreshCiphertexts: document.getElementById("refreshCiphertexts"),
   backToDecrypt: document.getElementById("backToDecrypt"),
   decryptPanel: document.getElementById("decryptPanel"),
   encryptPanel: document.getElementById("encryptPanel"),
+  ciphertextList: document.getElementById("ciphertextList"),
+  publicKeyList: document.getElementById("publicKeyList"),
+  togglePubKeys: document.getElementById("togglePubKeys"),
+  toggleCiphertexts: document.getElementById("toggleCiphertexts"),
+  keyShareModal: document.getElementById("keyShareModal"),
+  keyShareName: document.getElementById("keyShareName"),
+  keyShareFeedback: document.getElementById("keyShareFeedback"),
+  modalUploadPub: document.getElementById("modalUploadPub"),
+  modalCopyLink: document.getElementById("modalCopyLink"),
+  modalClose: document.getElementById("modalClose"),
+  cipherShareModal: document.getElementById("cipherShareModal"),
+  cipherShareName: document.getElementById("cipherShareName"),
+  cipherShareFeedback: document.getElementById("cipherShareFeedback"),
+  modalSaveCipher: document.getElementById("modalSaveCipher"),
+  modalCopyCipher: document.getElementById("modalCopyCipher"),
+  cipherModalClose: document.getElementById("cipherModalClose"),
   themeToggle: document.getElementById("themeToggle"),
   themeLabel: document.getElementById("themeLabel")
 }
@@ -402,6 +572,13 @@ function setNotice(el, text){
   el.classList.add("show")
 }
 
+function setModalFeedback(el, text, type = "success"){
+  el.textContent = text
+  el.classList.remove("success", "error", "show")
+  if(!text) return
+  el.classList.add(type, "show")
+}
+
 function enableButtons(){
   ui.genBtn.disabled = !sodiumReady
   ui.encryptBtn.disabled = !sodiumReady
@@ -411,24 +588,8 @@ function enableButtons(){
 async function initSodium(){
   try{
     if(!sodiumLib){
-      const urls = [
-        "https://cdn.jsdmirror.com/npm/libsodium-wrappers@0.8.2/+esm",
-        "https://cdn.jsdelivr.net/npm/libsodium-wrappers@0.8.2/+esm"
-      ]
-      let lastErr = null
-      for(const url of urls){
-        try{
-          const mod = await import(url)
-          sodiumLib = mod.default || mod
-          lastErr = null
-          break
-        }catch(err){
-          lastErr = err
-        }
-      }
-      if(!sodiumLib && lastErr){
-        throw lastErr
-      }
+      const mod = await import("./vendor/libsodium-wrappers.mjs")
+      sodiumLib = mod.default || mod
     }
     await sodiumLib.ready
     sodiumReady = true
@@ -451,7 +612,125 @@ function safeBytesToBase64(bytes){
 function updateKeyActions(){
   const hasPub = ui.pub.value.trim().length > 0
   const hasPriv = ui.priv.value.trim().length > 0
-  ui.copyLink.disabled = !hasPub
+  ui.modalUploadPub.disabled = !hasPub
+  ui.modalCopyLink.disabled = !hasPub
+  ui.decryptBtn.disabled = !sodiumReady || !hasPub || !hasPriv
+}
+
+function saveSessionKeypair(){
+  const pub = ui.pub.value.trim()
+  const priv = ui.priv.value.trim()
+  if(!pub || !priv) return
+  sessionStorage.setItem(SESSION_PUB_KEY, pub)
+  sessionStorage.setItem(SESSION_PRIV_KEY, priv)
+}
+
+function restoreSessionKeypair(){
+  const pub = sessionStorage.getItem(SESSION_PUB_KEY) || ""
+  const priv = sessionStorage.getItem(SESSION_PRIV_KEY) || ""
+  if(!pub || !priv) return false
+  ui.pub.value = pub
+  ui.priv.value = priv
+  updateKeyActions()
+  return true
+}
+
+function randomCiphertextName(){
+  return String(Math.floor(1000 + Math.random() * 9000))
+}
+
+function randomKeyName(){
+  return randomCiphertextName()
+}
+
+function shortValue(value){
+  if(value.length <= 18) return value
+  return `${value.slice(0, 8)}…${value.slice(-6)}`
+}
+
+function formatDate(value){
+  if(!value) return ""
+  const date = new Date(value)
+  if(Number.isNaN(date.getTime())) return ""
+  return date.toLocaleString()
+}
+
+async function apiJson(path, options = {}){
+  const res = await fetch(path, {
+    headers: {
+      "content-type": "application/json",
+      ...(options.headers || {})
+    },
+    ...options
+  })
+  let data = null
+  try{ data = await res.json() }catch{}
+  if(!res.ok){
+    throw new Error((data && data.error) || `Request failed with ${res.status}`)
+  }
+  return data
+}
+
+function renderEmpty(container, text){
+  container.innerHTML = ""
+  const el = document.createElement("div")
+  el.className = "empty-list"
+  el.textContent = text
+  container.appendChild(el)
+}
+
+function renderRecords(container, records, getName, getMeta, onSelect){
+  container.innerHTML = ""
+  if(!records.length){
+    renderEmpty(container, "No records found.")
+    return
+  }
+  for(const record of records){
+    const button = document.createElement("button")
+    button.type = "button"
+    button.className = "record-item"
+
+    const name = document.createElement("span")
+    name.className = "record-name"
+    name.textContent = getName(record)
+
+    const meta = document.createElement("span")
+    meta.className = "record-meta"
+    meta.textContent = getMeta(record)
+
+    button.append(name, meta)
+    button.addEventListener("click", () => onSelect(record))
+    container.appendChild(button)
+  }
+}
+
+function encryptLinkForPublicKey(){
+  const pub = ui.pub.value.trim()
+  if(!pub) return ""
+  const base = location.origin === "null" ? location.href.split("?")[0] : `${location.origin}${location.pathname}`
+  return `${base}?pub=${encodeURIComponent(pub)}`
+}
+
+function showKeyShareModal(){
+  ui.keyShareName.value = ""
+  setModalFeedback(ui.keyShareFeedback, "")
+  ui.keyShareModal.classList.remove("hidden")
+  ui.keyShareName.focus()
+}
+
+function hideKeyShareModal(){
+  ui.keyShareModal.classList.add("hidden")
+}
+
+function showCipherShareModal(){
+  ui.cipherShareName.value = ""
+  setModalFeedback(ui.cipherShareFeedback, "")
+  ui.cipherShareModal.classList.remove("hidden")
+  ui.cipherShareName.focus()
+}
+
+function hideCipherShareModal(){
+  ui.cipherShareModal.classList.add("hidden")
 }
 
 async function genkey(){
@@ -464,9 +743,10 @@ async function genkey(){
     ui.decryptOut.value = ""
     ui.encryptMsg.value = ""
     ui.encryptOut.value = ""
-    ui.copyCipher.disabled = true
     ui.copyPlain.disabled = true
+    saveSessionKeypair()
     updateKeyActions()
+    showKeyShareModal()
   }catch(err){
     setNotice(ui.keyNotice, "Keypair generation failed: " + err)
   }
@@ -488,7 +768,7 @@ async function encrypt(){
       publicKey
     )
     ui.encryptOut.value = safeBytesToBase64(cipher)
-    ui.copyCipher.disabled = false
+    showCipherShareModal()
   }catch(err){
     setNotice(ui.encryptNotice, "Encrypt failed: " + err)
   }
@@ -524,30 +804,245 @@ async function decrypt(){
 }
 
 async function copyValue(value){
-  try{ await navigator.clipboard.writeText(value) }catch{}
+  const text = String(value || "")
+  if(!text) return false
+
+  try{
+    if(navigator.clipboard && window.isSecureContext){
+      await navigator.clipboard.writeText(text)
+      return true
+    }
+  }catch{
+  }
+
+  const textarea = document.createElement("textarea")
+  textarea.value = text
+  textarea.setAttribute("readonly", "")
+  textarea.style.position = "fixed"
+  textarea.style.top = "0"
+  textarea.style.left = "-9999px"
+  textarea.style.width = "1px"
+  textarea.style.height = "1px"
+  textarea.style.opacity = "0"
+  document.body.appendChild(textarea)
+  textarea.focus()
+  textarea.select()
+  textarea.setSelectionRange(0, text.length)
+
+  try{
+    return document.execCommand("copy")
+  }catch{
+    return false
+  }finally{
+    document.body.removeChild(textarea)
+  }
+}
+
+async function saveCiphertext(){
+  try{
+    setNotice(ui.encryptNotice, "")
+    setModalFeedback(ui.cipherShareFeedback, "")
+    const ciphertext = ui.encryptOut.value.trim()
+    const recipientPublicKey = ui.encryptPub.value.trim()
+    if(!ciphertext || !recipientPublicKey){
+      setModalFeedback(ui.cipherShareFeedback, "Ciphertext and recipient public key are required.", "error")
+      return
+    }
+    ui.modalSaveCipher.disabled = true
+    const cleanName = ui.cipherShareName.value.trim() || randomCiphertextName()
+    await apiJson("/api/ciphertexts", {
+      method: "POST",
+      body: JSON.stringify({ name: cleanName, ciphertext, recipientPublicKey })
+    })
+    setModalFeedback(ui.cipherShareFeedback, "Ciphertext uploaded successfully.", "success")
+    loadCiphertexts(true)
+  }catch(err){
+    setModalFeedback(ui.cipherShareFeedback, "Upload failed: " + err.message, "error")
+  }finally{
+    ui.modalSaveCipher.disabled = false
+  }
+}
+
+function renderCiphertexts(){
+  const visibleRecords = ciphertextsExpanded
+    ? ciphertextRecords
+    : ciphertextRecords.slice(0, CIPHERTEXT_COLLAPSED_LIMIT)
+  renderRecords(
+    ui.ciphertextList,
+    visibleRecords,
+    (record) => record.name || "Untitled",
+    (record) => formatDate(record.createdAt),
+    (record) => {
+      ui.decryptMsg.value = record.ciphertext || ""
+      decrypt()
+    }
+  )
+
+  const hasOverflow = ciphertextRecords.length > CIPHERTEXT_COLLAPSED_LIMIT
+  ui.toggleCiphertexts.classList.toggle("hidden", !hasOverflow)
+  ui.toggleCiphertexts.textContent = ciphertextsExpanded
+    ? `Show latest ${CIPHERTEXT_COLLAPSED_LIMIT}`
+    : `Show all (${ciphertextRecords.length})`
+}
+
+async function loadCiphertexts(silent = false){
+  try{
+    if(!silent) setNotice(ui.decryptNotice, "")
+    const pub = ui.pub.value.trim()
+    if(!pub){
+      ciphertextRecords = []
+      renderCiphertexts()
+      if(!silent) setNotice(ui.decryptNotice, "Generate a keypair first.")
+      return
+    }
+    const data = await apiJson(`/api/ciphertexts?recipientPublicKey=${encodeURIComponent(pub)}`)
+    ciphertextRecords = data.records || []
+    renderCiphertexts()
+  }catch(err){
+    if(!silent) setNotice(ui.decryptNotice, "Load failed: " + err.message)
+  }
+}
+
+async function uploadPublicKey(){
+  try{
+    setNotice(ui.keyNotice, "")
+    setModalFeedback(ui.keyShareFeedback, "")
+    const publicKey = ui.pub.value.trim()
+    if(!publicKey){
+      setModalFeedback(ui.keyShareFeedback, "Generate a keypair first.", "error")
+      return
+    }
+    ui.modalUploadPub.disabled = true
+    const name = ui.keyShareName.value.trim() || randomKeyName()
+    await apiJson("/api/public-keys", {
+      method: "POST",
+      body: JSON.stringify({ publicKey, name })
+    })
+    setModalFeedback(ui.keyShareFeedback, "Public key uploaded successfully.", "success")
+    await loadPublicKeys()
+  }catch(err){
+    setModalFeedback(ui.keyShareFeedback, "Upload failed: " + err.message, "error")
+  }finally{
+    ui.modalUploadPub.disabled = false
+    updateKeyActions()
+  }
+}
+
+function openEncryptForPublicKey(publicKey){
+  ui.encryptPub.value = publicKey
+  ui.encryptMsg.value = ""
+  ui.encryptOut.value = ""
+  hideCipherShareModal()
+  ui.encryptPanel.classList.remove("hidden")
+  ui.decryptPanel.classList.add("hidden")
+}
+
+async function encryptWithLatestPublicKey(){
+  try{
+    setNotice(ui.keyNotice, "")
+    if(!publicKeyRecords.length){
+      const data = await apiJson("/api/public-keys")
+      publicKeyRecords = data.records || []
+      renderPublicKeys()
+    }
+    const latest = publicKeyRecords[0]
+    if(!latest || !latest.publicKey){
+      setNotice(ui.keyNotice, "No public keys are available.")
+      return
+    }
+    openEncryptForPublicKey(latest.publicKey)
+  }catch(err){
+    setNotice(ui.keyNotice, "Load public keys failed: " + err.message)
+  }
+}
+
+function renderPublicKeys(){
+  const visibleRecords = publicKeysExpanded
+    ? publicKeyRecords
+    : publicKeyRecords.slice(0, PUBLIC_KEY_COLLAPSED_LIMIT)
+  renderRecords(
+    ui.publicKeyList,
+    visibleRecords,
+    (record) => record.name || "Untitled",
+    (record) => `${shortValue(record.publicKey || "")} · ${formatDate(record.createdAt)}`,
+    (record) => openEncryptForPublicKey(record.publicKey || "")
+  )
+
+  const hasOverflow = publicKeyRecords.length > PUBLIC_KEY_COLLAPSED_LIMIT
+  ui.togglePubKeys.classList.toggle("hidden", !hasOverflow)
+  ui.togglePubKeys.textContent = publicKeysExpanded
+    ? `Show latest ${PUBLIC_KEY_COLLAPSED_LIMIT}`
+    : `Show all (${publicKeyRecords.length})`
+}
+
+async function loadPublicKeys(){
+  try{
+    setNotice(ui.keyNotice, "")
+    const data = await apiJson("/api/public-keys")
+    publicKeyRecords = data.records || []
+    renderPublicKeys()
+  }catch(err){
+    setNotice(ui.keyNotice, "Load public keys failed: " + err.message)
+  }
 }
 
 ui.genBtn.addEventListener("click", genkey)
+ui.encryptLatestKey.addEventListener("click", encryptWithLatestPublicKey)
 ui.encryptBtn.addEventListener("click", encrypt)
 ui.decryptBtn.addEventListener("click", decrypt)
-ui.copyCipher.addEventListener("click", () => copyValue(ui.encryptOut.value))
 ui.copyPlain.addEventListener("click", () => copyValue(ui.decryptOut.value))
-ui.copyLink.addEventListener("click", () => {
-  const pub = ui.pub.value.trim()
-  if(!pub) return
-  const base = location.origin === "null" ? location.href.split("?")[0] : `${location.origin}${location.pathname}`
-  const link = `${base}?pub=${encodeURIComponent(pub)}`
-  copyValue(link)
+ui.modalUploadPub.addEventListener("click", uploadPublicKey)
+ui.modalCopyLink.addEventListener("click", async () => {
+  const link = encryptLinkForPublicKey()
+  if(!link) return
+  const copied = await copyValue(link)
+  setModalFeedback(
+    ui.keyShareFeedback,
+    copied ? "Encrypt link copied." : "Copy failed. Please copy the link manually.",
+    copied ? "success" : "error"
+  )
 })
+ui.modalClose.addEventListener("click", hideKeyShareModal)
+ui.keyShareModal.addEventListener("click", (event) => {
+  if(event.target === ui.keyShareModal) hideKeyShareModal()
+})
+ui.modalSaveCipher.addEventListener("click", saveCiphertext)
+ui.modalCopyCipher.addEventListener("click", async () => {
+  const ciphertext = ui.encryptOut.value.trim()
+  if(!ciphertext) return
+  const copied = await copyValue(ciphertext)
+  setModalFeedback(
+    ui.cipherShareFeedback,
+    copied ? "Ciphertext copied." : "Copy failed. Please copy the ciphertext manually.",
+    copied ? "success" : "error"
+  )
+})
+ui.cipherModalClose.addEventListener("click", hideCipherShareModal)
+ui.cipherShareModal.addEventListener("click", (event) => {
+  if(event.target === ui.cipherShareModal) hideCipherShareModal()
+})
+ui.togglePubKeys.addEventListener("click", () => {
+  publicKeysExpanded = !publicKeysExpanded
+  renderPublicKeys()
+})
+ui.toggleCiphertexts.addEventListener("click", () => {
+  ciphertextsExpanded = !ciphertextsExpanded
+  renderCiphertexts()
+})
+ui.refreshPubKeys.addEventListener("click", loadPublicKeys)
+ui.refreshCiphertexts.addEventListener("click", () => loadCiphertexts(false))
 
 ui.backToDecrypt.addEventListener("click", () => {
   history.replaceState("", document.title, location.pathname)
   ui.encryptPub.value = ""
+  hideCipherShareModal()
   ui.encryptPanel.classList.add("hidden")
   ui.decryptPanel.classList.remove("hidden")
+  updateKeyActions()
+  loadCiphertexts(true)
 })
 
-const selectable = [ui.pub, ui.priv, ui.encryptPub, ui.encryptMsg, ui.encryptOut, ui.decryptMsg, ui.decryptOut]
+const selectable = [ui.pub, ui.priv, ui.encryptPub, ui.encryptMsg, ui.encryptOut, ui.decryptMsg, ui.decryptOut, ui.keyShareName, ui.cipherShareName]
 selectable.forEach((el) => el.addEventListener("focus", () => el.select()))
 
 function applyTheme(isLight){
@@ -576,8 +1071,14 @@ window.addEventListener("load", () => {
 
   updateKeyActions()
   initSodium().then(() => {
-    if(ui.decryptPanel.classList.contains("hidden")) return
-    genkey()
+    const restored = restoreSessionKeypair()
+    if(!ui.decryptPanel.classList.contains("hidden") && !restored){
+      genkey()
+    }
+    loadPublicKeys()
+    loadCiphertexts(true)
+    setInterval(loadPublicKeys, PUBLIC_KEY_REFRESH_MS)
+    setInterval(() => loadCiphertexts(true), CIPHERTEXT_REFRESH_MS)
   })
 })
 </script>
