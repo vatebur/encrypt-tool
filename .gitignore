@@ -33,3 +33,9 @@ Thumbs.db
 # Logs
 *.log
 logs/
+
+# Local verification artifacts
+.playwright-mcp/
+public-key-modal*.png
+tool-fixed.png
+*-reorg.png
