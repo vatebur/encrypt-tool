@@ -7,5 +7,9 @@ preview_urls = false
 directory = "./public"
 binding = "ASSETS"
 
+# Configure Turnstile values outside Git:
+#   wrangler secret put TURNSTILE_SITE_KEY
+#   wrangler secret put TURNSTILE_SECRET_KEY
+
 [[kv_namespaces]]
 binding = "STORE"

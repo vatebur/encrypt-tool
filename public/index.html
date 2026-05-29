@@ -375,6 +375,14 @@ body::before{
   background:color-mix(in srgb, var(--danger) 14%, var(--panel));
   color:color-mix(in srgb, var(--danger) 82%, var(--text));
 }
+.turnstile-mount{
+  position:fixed;
+  right:12px;
+  bottom:12px;
+  z-index:20;
+  min-width:1px;
+  min-height:1px;
+}
 </style>
 </head>
 <body>
@@ -501,6 +509,8 @@ body::before{
   </div>
 </div>
 
+<div id="turnstileMount" class="turnstile-mount"></div>
+
 <script type="module">
 let sodiumReady = false
 let sodiumLib = null
@@ -510,10 +520,18 @@ const PUBLIC_KEY_REFRESH_MS = 60000
 const CIPHERTEXT_REFRESH_MS = 60000
 const PUBLIC_KEY_COLLAPSED_LIMIT = 3
 const CIPHERTEXT_COLLAPSED_LIMIT = 3
+const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
+const TURNSTILE_TIMEOUT_MS = 60000
 let publicKeyRecords = []
 let publicKeysExpanded = false
 let ciphertextRecords = []
 let ciphertextsExpanded = false
+let turnstileSiteKey = ""
+let turnstileConfigLoaded = false
+let turnstileConfigError = ""
+let turnstileReadyPromise = null
+let turnstileWidgetId = null
+let pendingTurnstile = null
 
 const ui = {
   status: document.getElementById("status"),
@@ -553,6 +571,7 @@ const ui = {
   modalSaveCipher: document.getElementById("modalSaveCipher"),
   modalCopyCipher: document.getElementById("modalCopyCipher"),
   cipherModalClose: document.getElementById("cipherModalClose"),
+  turnstileMount: document.getElementById("turnstileMount"),
   themeToggle: document.getElementById("themeToggle"),
   themeLabel: document.getElementById("themeLabel")
 }
@@ -609,11 +628,31 @@ function safeBytesToBase64(bytes){
   return sodiumLib.to_base64(bytes)
 }
 
+function uploadSecurityMessage(){
+  if(turnstileSiteKey) return ""
+  if(!turnstileConfigLoaded) return "Upload verification is loading. Please wait."
+  if(turnstileConfigError) return "Upload verification could not load: " + turnstileConfigError
+  return "Uploads are disabled because Turnstile is not configured."
+}
+
+function updateUploadSecurityFeedback(){
+  const message = uploadSecurityMessage()
+  if(!ui.keyShareModal.classList.contains("hidden")){
+    setModalFeedback(ui.keyShareFeedback, message, message ? "error" : "success")
+  }
+  if(!ui.cipherShareModal.classList.contains("hidden")){
+    setModalFeedback(ui.cipherShareFeedback, message, message ? "error" : "success")
+  }
+}
+
 function updateKeyActions(){
   const hasPub = ui.pub.value.trim().length > 0
   const hasPriv = ui.priv.value.trim().length > 0
-  ui.modalUploadPub.disabled = !hasPub
+  const uploadBlocked = !!uploadSecurityMessage()
+  const hasCiphertext = ui.encryptOut.value.trim().length > 0 && ui.encryptPub.value.trim().length > 0
+  ui.modalUploadPub.disabled = !hasPub || uploadBlocked
   ui.modalCopyLink.disabled = !hasPub
+  ui.modalSaveCipher.disabled = !hasCiphertext || uploadBlocked
   ui.decryptBtn.disabled = !sodiumReady || !hasPub || !hasPriv
 }
 
@@ -671,6 +710,97 @@ async function apiJson(path, options = {}){
   return data
 }
 
+async function loadTurnstileConfig(){
+  try{
+    turnstileConfigError = ""
+    const data = await apiJson("/api/config")
+    turnstileSiteKey = String(data.turnstileSiteKey || "").trim()
+  }catch(err){
+    turnstileConfigError = err.message
+  }finally{
+    turnstileConfigLoaded = true
+    updateKeyActions()
+    updateUploadSecurityFeedback()
+  }
+}
+
+function loadTurnstileScript(){
+  if(window.turnstile) return Promise.resolve()
+  if(turnstileReadyPromise) return turnstileReadyPromise
+
+  turnstileReadyPromise = new Promise((resolve, reject) => {
+    const script = document.createElement("script")
+    script.src = TURNSTILE_SCRIPT_URL
+    script.async = true
+    script.defer = true
+    script.onload = () => resolve()
+    script.onerror = () => reject(new Error("Upload verification could not load."))
+    document.head.appendChild(script)
+  })
+
+  return turnstileReadyPromise
+}
+
+function settleTurnstile(error, token){
+  if(!pendingTurnstile) return
+  const { resolve, reject, timer } = pendingTurnstile
+  pendingTurnstile = null
+  clearTimeout(timer)
+  if(error){
+    reject(error)
+    return
+  }
+  resolve(token)
+}
+
+async function ensureTurnstileWidget(){
+  const securityMessage = uploadSecurityMessage()
+  if(securityMessage) throw new Error(securityMessage)
+
+  await loadTurnstileScript()
+  if(turnstileWidgetId !== null) return
+
+  turnstileWidgetId = window.turnstile.render(ui.turnstileMount, {
+    sitekey: turnstileSiteKey,
+    size: "invisible",
+    appearance: "execute",
+    execution: "execute",
+    callback: (token) => settleTurnstile(null, token),
+    "error-callback": () => settleTurnstile(new Error("Verification failed. Please try again.")),
+    "expired-callback": () => settleTurnstile(new Error("Verification expired. Please try again.")),
+    "timeout-callback": () => settleTurnstile(new Error("Verification timed out. Please try again."))
+  })
+}
+
+async function requestTurnstileToken(){
+  if(pendingTurnstile) throw new Error("Verification is already in progress.")
+  await ensureTurnstileWidget()
+
+  return new Promise((resolve, reject) => {
+    pendingTurnstile = {
+      resolve,
+      reject,
+      timer: setTimeout(
+        () => settleTurnstile(new Error("Verification timed out. Please try again.")),
+        TURNSTILE_TIMEOUT_MS
+      )
+    }
+
+    try{
+      window.turnstile.reset(turnstileWidgetId)
+      window.turnstile.execute(turnstileWidgetId)
+    }catch(err){
+      settleTurnstile(err)
+    }
+  })
+}
+
+function resetTurnstile(){
+  if(window.turnstile && turnstileWidgetId !== null){
+    window.turnstile.reset(turnstileWidgetId)
+  }
+}
+
 function renderEmpty(container, text){
   container.innerHTML = ""
   const el = document.createElement("div")
@@ -714,7 +844,9 @@ function encryptLinkForPublicKey(){
 function showKeyShareModal(){
   ui.keyShareName.value = ""
   setModalFeedback(ui.keyShareFeedback, "")
+  updateKeyActions()
   ui.keyShareModal.classList.remove("hidden")
+  updateUploadSecurityFeedback()
   ui.keyShareName.focus()
 }
 
@@ -725,7 +857,9 @@ function hideKeyShareModal(){
 function showCipherShareModal(){
   ui.cipherShareName.value = ""
   setModalFeedback(ui.cipherShareFeedback, "")
+  updateKeyActions()
   ui.cipherShareModal.classList.remove("hidden")
+  updateUploadSecurityFeedback()
   ui.cipherShareName.focus()
 }
 
@@ -768,6 +902,7 @@ async function encrypt(){
       publicKey
     )
     ui.encryptOut.value = safeBytesToBase64(cipher)
+    updateKeyActions()
     showCipherShareModal()
   }catch(err){
     setNotice(ui.encryptNotice, "Encrypt failed: " + err)
@@ -848,18 +983,27 @@ async function saveCiphertext(){
       setModalFeedback(ui.cipherShareFeedback, "Ciphertext and recipient public key are required.", "error")
       return
     }
+    const securityMessage = uploadSecurityMessage()
+    if(securityMessage){
+      setModalFeedback(ui.cipherShareFeedback, securityMessage, "error")
+      return
+    }
     ui.modalSaveCipher.disabled = true
     const cleanName = ui.cipherShareName.value.trim() || randomCiphertextName()
+    setModalFeedback(ui.cipherShareFeedback, "Verifying upload.")
+    const turnstileToken = await requestTurnstileToken()
+    setModalFeedback(ui.cipherShareFeedback, "Uploading ciphertext.")
     await apiJson("/api/ciphertexts", {
       method: "POST",
-      body: JSON.stringify({ name: cleanName, ciphertext, recipientPublicKey })
+      body: JSON.stringify({ name: cleanName, ciphertext, recipientPublicKey, turnstileToken })
     })
     setModalFeedback(ui.cipherShareFeedback, "Ciphertext uploaded successfully.", "success")
     loadCiphertexts(true)
   }catch(err){
     setModalFeedback(ui.cipherShareFeedback, "Upload failed: " + err.message, "error")
   }finally{
-    ui.modalSaveCipher.disabled = false
+    resetTurnstile()
+    updateKeyActions()
   }
 }
 
@@ -912,18 +1056,26 @@ async function uploadPublicKey(){
       setModalFeedback(ui.keyShareFeedback, "Generate a keypair first.", "error")
       return
     }
+    const securityMessage = uploadSecurityMessage()
+    if(securityMessage){
+      setModalFeedback(ui.keyShareFeedback, securityMessage, "error")
+      return
+    }
     ui.modalUploadPub.disabled = true
     const name = ui.keyShareName.value.trim() || randomKeyName()
+    setModalFeedback(ui.keyShareFeedback, "Verifying upload.")
+    const turnstileToken = await requestTurnstileToken()
+    setModalFeedback(ui.keyShareFeedback, "Uploading public key.")
     await apiJson("/api/public-keys", {
       method: "POST",
-      body: JSON.stringify({ publicKey, name })
+      body: JSON.stringify({ publicKey, name, turnstileToken })
     })
     setModalFeedback(ui.keyShareFeedback, "Public key uploaded successfully.", "success")
     await loadPublicKeys()
   }catch(err){
     setModalFeedback(ui.keyShareFeedback, "Upload failed: " + err.message, "error")
   }finally{
-    ui.modalUploadPub.disabled = false
+    resetTurnstile()
     updateKeyActions()
   }
 }
@@ -932,6 +1084,7 @@ function openEncryptForPublicKey(publicKey){
   ui.encryptPub.value = publicKey
   ui.encryptMsg.value = ""
   ui.encryptOut.value = ""
+  updateKeyActions()
   hideCipherShareModal()
   ui.encryptPanel.classList.remove("hidden")
   ui.decryptPanel.classList.add("hidden")
@@ -1035,6 +1188,7 @@ ui.refreshCiphertexts.addEventListener("click", () => loadCiphertexts(false))
 ui.backToDecrypt.addEventListener("click", () => {
   history.replaceState("", document.title, location.pathname)
   ui.encryptPub.value = ""
+  ui.encryptOut.value = ""
   hideCipherShareModal()
   ui.encryptPanel.classList.add("hidden")
   ui.decryptPanel.classList.remove("hidden")
@@ -1060,6 +1214,7 @@ ui.themeToggle.addEventListener("click", () => {
 window.addEventListener("load", () => {
   const saved = localStorage.getItem("theme") || "dark"
   applyTheme(saved === "light")
+  loadTurnstileConfig()
 
   const params = new URLSearchParams(location.search)
   const pubParam = params.get("pub")
