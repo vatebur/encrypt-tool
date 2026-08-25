@@ -342,39 +342,6 @@ body::before{
   margin-bottom:6px;
 }
 .role-desc{display:block;color:var(--muted);font-size:13px;line-height:1.45;}
-.steps{
-  display:grid;
-  gap:8px;
-  margin:12px 0 14px;
-  padding:0;
-  list-style:none;
-  counter-reset:step;
-}
-.steps li{
-  counter-increment:step;
-  display:flex;
-  gap:10px;
-  align-items:flex-start;
-  padding:10px 12px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  background:var(--panel-2);
-  color:var(--text);
-  font-size:13px;
-  line-height:1.45;
-}
-.steps li::before{
-  content:counter(step);
-  display:inline-grid;
-  place-items:center;
-  min-width:22px;
-  height:22px;
-  border-radius:999px;
-  background:color-mix(in srgb, var(--accent) 28%, var(--panel));
-  color:var(--text);
-  font-weight:700;
-  font-size:12px;
-}
 .helper-box{
   padding:12px;
   border:1px solid color-mix(in srgb, var(--accent-2) 40%, var(--border));
@@ -446,7 +413,8 @@ body::before{
   align-items:center;
   justify-content:center;
   padding:18px;
-  background:rgba(0,0,0,.55);
+  background:rgba(0,0,0,.68);
+  backdrop-filter:blur(8px);
   z-index:10;
 }
 .modal.hidden{display:none;}
@@ -457,6 +425,131 @@ body::before{
   background:var(--panel);
   box-shadow:var(--shadow);
   padding:20px;
+}
+.task-zone{
+  border:1px solid color-mix(in srgb, var(--accent) 32%, var(--border));
+  border-radius:calc(var(--radius) - 2px);
+  background:
+    linear-gradient(135deg, color-mix(in srgb, var(--accent) 7%, transparent), transparent 54%),
+    var(--panel-2);
+  padding:16px;
+  scroll-margin-top:18px;
+}
+.task-zone.attention, .encrypt-result.attention{
+  animation:task-focus 1.05s ease-out;
+}
+.encrypt-result{scroll-margin-top:18px;border-radius:12px;}
+@keyframes task-focus{
+  0%{box-shadow:0 0 0 0 color-mix(in srgb, var(--accent) 45%, transparent);}
+  45%{box-shadow:0 0 0 7px color-mix(in srgb, var(--accent) 16%, transparent);}
+  100%{box-shadow:0 0 0 0 transparent;}
+}
+.settings-head{margin:0 0 4px;}
+.selected-recipient-bar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  margin-bottom:12px;
+  padding:10px 12px;
+  border:1px solid color-mix(in srgb, var(--accent-2) 38%, var(--border));
+  border-radius:12px;
+  background:color-mix(in srgb, var(--accent-2) 9%, var(--panel));
+}
+.selected-recipient-bar .helper-box{
+  min-width:0;
+  margin:0;
+  padding:0;
+  border:0;
+  background:transparent;
+  overflow-wrap:anywhere;
+}
+.handoff-box{
+  width:min(590px, 100%);
+  padding:0;
+  overflow:hidden;
+  border-color:color-mix(in srgb, var(--accent) 52%, var(--border));
+  animation:modal-arrive .24s ease-out;
+}
+.handoff-box::before{
+  content:"";
+  display:block;
+  height:4px;
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+}
+.handoff-content{padding:22px;}
+.handoff-eyebrow{
+  margin-bottom:8px;
+  color:var(--accent);
+  font-family:"IBM Plex Mono",monospace;
+  font-size:11px;
+  font-weight:600;
+  letter-spacing:1.2px;
+  text-transform:uppercase;
+}
+.handoff-route{
+  display:grid;
+  grid-template-columns:max-content 1fr max-content;
+  align-items:center;
+  gap:10px;
+  margin:18px 0;
+  color:var(--text);
+  font-size:12px;
+  font-weight:600;
+}
+.handoff-route-line{
+  height:1px;
+  background:linear-gradient(90deg, var(--accent), var(--accent-2));
+  position:relative;
+}
+.handoff-route-line::after{
+  content:"";
+  position:absolute;
+  right:0;
+  top:50%;
+  width:7px;
+  height:7px;
+  border-top:1px solid var(--accent-2);
+  border-right:1px solid var(--accent-2);
+  transform:translateY(-50%) rotate(45deg);
+}
+.handoff-link{
+  padding:12px;
+  border:1px dashed color-mix(in srgb, var(--accent) 55%, var(--border));
+  border-radius:12px;
+  background:color-mix(in srgb, var(--accent) 6%, var(--panel-2));
+}
+.handoff-box .modal-actions{justify-content:flex-start;}
+.handoff-box .btn.primary{min-width:190px;}
+.field-error{
+  min-height:18px;
+  margin-top:6px;
+  color:color-mix(in srgb, var(--danger) 82%, var(--text));
+  font-size:12px;
+  line-height:1.45;
+}
+@keyframes modal-arrive{
+  from{opacity:0;transform:translateY(10px) scale(.985);}
+  to{opacity:1;transform:none;}
+}
+:focus-visible{
+  outline:2px solid color-mix(in srgb, var(--accent) 72%, white);
+  outline-offset:3px;
+}
+@media (max-width:560px){
+  .container{margin-top:18px;padding:0 12px;}
+  .card{padding:16px;}
+  .task-zone{padding:13px;}
+  .selected-recipient-bar{align-items:stretch;flex-direction:column;}
+  .selected-recipient-bar .btn{width:100%;}
+  .modal{align-items:flex-end;padding:10px;}
+  .handoff-box{border-radius:18px 18px 12px 12px;}
+  .handoff-content{padding:18px;}
+  .handoff-box .modal-actions{display:grid;}
+  .handoff-box .btn{width:100%;}
+}
+@media (prefers-reduced-motion:reduce){
+  *, *::before, *::after{scroll-behavior:auto!important;animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;}
 }
 .modal-actions{
   display:flex;
@@ -534,18 +627,29 @@ body::before{
   <section id="decryptPanel" class="card">
     <div class="panel-head">
       <div>
-        <h2 class="section-title" data-i18n="receiver.title">接收者步骤</h2>
-        <div class="subtle" data-i18n="receiver.subtitle">你的浏览器会保管解锁码。本网站不会收到原文或解锁码。</div>
+        <h2 class="section-title" data-i18n="receiver.title">解密收到的内容</h2>
+        <div class="subtle" data-i18n="receiver.subtitle">把发送者发回的密文粘贴到这里。解密只在当前浏览器中完成。</div>
       </div>
     </div>
 
-    <ol class="steps">
-      <li data-i18n="receiver.step1">生成接收链接。</li>
-      <li data-i18n="receiver.step2">把接收链接发给发送者。</li>
-      <li data-i18n="receiver.step3">等待对方把加密内容发回来。</li>
-      <li data-i18n="receiver.step4">粘贴或选择加密内容，然后解开。</li>
-    </ol>
+    <div id="decryptTask" class="task-zone">
+      <div class="label strong" data-i18n="receiver.encryptedLabel">加密内容（密文）</div>
+      <textarea id="decrypt_msg" class="textarea mono" placeholder="把收到的加密内容粘贴到这里" data-i18n-placeholder="receiver.encryptedPlaceholder"></textarea>
 
+      <div class="actions">
+        <button id="decryptBtn" class="btn primary" disabled data-i18n="receiver.decrypt">解开内容</button>
+        <button id="copyPlain" class="btn secondary copy-btn" disabled data-i18n="receiver.copyPlain">复制原文</button>
+      </div>
+
+      <div class="label" data-i18n="receiver.plainLabel">原文</div>
+      <textarea id="decrypt_out" class="textarea" readonly placeholder="解开后的原文会显示在这里" data-i18n-placeholder="receiver.plainPlaceholder"></textarea>
+      <div id="decryptNotice" class="notice"></div>
+    </div>
+
+    <div class="separator"></div>
+
+    <h3 class="section-title settings-head" data-i18n="receiver.settingsTitle">接收设置</h3>
+    <div class="subtle" data-i18n="receiver.settingsHelp">保管好解锁码；接收链接可以分享，解锁码不可以。</div>
     <div class="row">
       <div>
         <div class="label strong" data-i18n="receiver.publicLabel">接收码（公钥）</div>
@@ -575,45 +679,43 @@ body::before{
     </div>
     <div id="ciphertextList" class="record-list"></div>
     <button id="toggleCiphertexts" class="btn secondary list-toggle hidden">显示全部</button>
-
-    <div class="label" data-i18n="receiver.encryptedLabel">加密内容（密文）</div>
-    <textarea id="decrypt_msg" class="textarea mono" placeholder="把收到的加密内容粘贴到这里" data-i18n-placeholder="receiver.encryptedPlaceholder"></textarea>
-
-    <div class="actions">
-      <button id="decryptBtn" class="btn primary" disabled data-i18n="receiver.decrypt">解开内容</button>
-      <button id="copyPlain" class="btn secondary copy-btn" disabled data-i18n="receiver.copyPlain">复制原文</button>
-    </div>
-
-    <div class="label" data-i18n="receiver.plainLabel">原文</div>
-    <textarea id="decrypt_out" class="textarea" readonly placeholder="解开后的原文会显示在这里" data-i18n-placeholder="receiver.plainPlaceholder"></textarea>
-    <div id="decryptNotice" class="notice"></div>
   </section>
 
   <section id="encryptPanel" class="card hidden">
     <div class="panel-head">
       <div>
-        <h2 class="section-title" data-i18n="sender.title">发送者步骤</h2>
-        <div class="subtle" data-i18n="sender.subtitle">你只需要接收者的接收链接或接收码，不需要也不应该拿到解锁码。</div>
+        <h2 class="section-title" data-i18n="sender.title">加密要发送的内容</h2>
+        <div class="subtle" data-i18n="sender.subtitle">内容只在当前浏览器中加密，接收者使用自己的解锁码打开。</div>
       </div>
       <button id="backToDecrypt" class="btn ghost-accent" data-i18n="sender.backToReceiver">切回接收者</button>
     </div>
 
-    <ol class="steps">
-      <li data-i18n="sender.step1">打开接收者发来的链接，或先选择/粘贴接收者。</li>
-      <li data-i18n="sender.step2">输入你要发送的内容。</li>
-      <li data-i18n="sender.step3">点击加密。</li>
-      <li data-i18n="sender.step4">复制加密内容，发回给接收者。</li>
-    </ol>
-
-    <div class="helper-box" id="selectedRecipientInfo" data-i18n="sender.noRecipient">先选择接收者：粘贴接收链接/接收码，或从公开列表选择。</div>
-
-    <div class="inline-form">
-      <div>
-        <div class="label strong" data-i18n="sender.pasteLabel">粘贴接收链接或接收码</div>
-        <input id="recipientInput" class="input mono" placeholder="https://example.com/?pub=... 或接收码" data-i18n-placeholder="sender.pastePlaceholder">
-      </div>
-      <button id="useRecipientInput" class="btn primary" data-i18n="sender.useRecipient">使用这个接收者</button>
+    <div class="selected-recipient-bar">
+      <div class="helper-box" id="selectedRecipientInfo" data-i18n="sender.noRecipient">尚未选择接收者。</div>
+      <button id="changeRecipientBtn" class="btn secondary" data-i18n="sender.changeRecipient">更换接收者</button>
     </div>
+    <input id="encrypt_pub" type="hidden">
+
+    <div id="encryptTask" class="task-zone">
+      <div class="label strong" data-i18n="sender.messageLabel">要发送的内容</div>
+      <textarea id="encrypt_msg" class="textarea" placeholder="输入要加密的内容" data-i18n-placeholder="sender.messagePlaceholder"></textarea>
+
+      <div class="actions">
+        <button id="encryptBtn" class="btn primary" disabled data-i18n="sender.encrypt">加密</button>
+      </div>
+
+      <div id="encryptResult" class="encrypt-result">
+        <div class="label" data-i18n="sender.encryptedLabel">加密内容（密文）</div>
+        <textarea id="encrypt_out" class="textarea mono" readonly placeholder="加密后的内容会显示在这里" data-i18n-placeholder="sender.encryptedPlaceholder"></textarea>
+        <div class="actions">
+          <button id="copyCipherBtn" class="btn primary copy-btn" disabled data-i18n="sender.copyCipher">复制加密内容</button>
+          <button id="uploadCipherBtn" class="btn secondary" disabled data-i18n="sender.uploadCipher">上传给接收者</button>
+        </div>
+      </div>
+      <div id="encryptNotice" class="notice"></div>
+    </div>
+
+    <div class="separator"></div>
 
     <div class="list-head">
       <div>
@@ -624,27 +726,57 @@ body::before{
     </div>
     <div id="publicKeyList" class="record-list"></div>
     <button id="togglePubKeys" class="btn secondary list-toggle hidden">显示全部</button>
-
-    <div class="label strong" data-i18n="sender.recipientLabel">接收者的接收码（公钥）</div>
-    <input id="encrypt_pub" class="input mono" placeholder="先选择接收者" data-i18n-placeholder="sender.recipientPlaceholder" readonly>
-
-    <div class="label" data-i18n="sender.messageLabel">要发送的内容</div>
-    <textarea id="encrypt_msg" class="textarea" placeholder="输入要加密的内容" data-i18n-placeholder="sender.messagePlaceholder"></textarea>
-
-    <div class="actions">
-      <button id="encryptBtn" class="btn primary" disabled data-i18n="sender.encrypt">加密</button>
-    </div>
-
-    <div class="label" data-i18n="sender.encryptedLabel">加密内容（密文）</div>
-    <textarea id="encrypt_out" class="textarea mono" readonly placeholder="加密后的内容会显示在这里" data-i18n-placeholder="sender.encryptedPlaceholder"></textarea>
-    <div class="actions">
-      <button id="copyCipherBtn" class="btn primary copy-btn" disabled data-i18n="sender.copyCipher">复制加密内容</button>
-      <button id="uploadCipherBtn" class="btn secondary" disabled data-i18n="sender.uploadCipher">上传给接收者</button>
-    </div>
-    <div id="encryptNotice" class="notice"></div>
   </section>
 
   <div id="keyNotice" class="notice" style="margin-top:12px;"></div>
+</div>
+
+<div id="receiverHandoffModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="receiverHandoffTitle" aria-describedby="receiverHandoffHelp">
+  <div class="modal-box handoff-box">
+    <div class="handoff-content">
+      <div class="handoff-eyebrow" data-i18n="receiverGate.eyebrow">开始接收前</div>
+      <h2 id="receiverHandoffTitle" class="section-title" data-i18n="receiverGate.title">先把接收链接发给发送者</h2>
+      <div id="receiverHandoffHelp" class="subtle" data-i18n="receiverGate.help">发送者需要这个链接才能为你加密内容。解锁码不会包含在链接中。</div>
+      <div class="handoff-route" aria-hidden="true">
+        <span data-i18n="receiverGate.routeFrom">你（接收者）</span>
+        <span class="handoff-route-line"></span>
+        <span data-i18n="receiverGate.routeTo">发送者</span>
+      </div>
+      <div class="handoff-link">
+        <div class="label strong" data-i18n="receiverGate.linkLabel">要发送的接收链接</div>
+        <input id="receiverLinkPreview" class="input mono" readonly placeholder="正在生成接收链接…" data-i18n-placeholder="receiverGate.linkLoading">
+      </div>
+      <div id="receiverHandoffFeedback" class="modal-feedback" role="status" aria-live="polite"></div>
+      <div class="modal-actions">
+        <button id="receiverGateCopy" class="btn primary copy-btn" disabled data-i18n="receiverGate.copy">复制接收链接</button>
+        <button id="receiverGateManual" class="btn secondary hidden" data-i18n="receiverGate.manualConfirm">我已手动复制，继续</button>
+        <button id="receiverGateContinue" class="btn primary hidden" data-i18n="receiverGate.continue">我知道了，去粘贴密文</button>
+        <button id="receiverGateToSender" class="btn secondary" data-i18n="receiverGate.toSender">我是发送者</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="recipientGateModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="recipientGateTitle" aria-describedby="recipientGateHelp">
+  <div class="modal-box handoff-box">
+    <div class="handoff-content">
+      <div class="handoff-eyebrow" data-i18n="senderGate.eyebrow">开始发送前</div>
+      <h2 id="recipientGateTitle" class="section-title" data-i18n="senderGate.title">先确认接收者</h2>
+      <div id="recipientGateHelp" class="subtle" data-i18n="senderGate.help">粘贴接收者发给你的接收链接或接收码。没有它，内容无法加密给正确的人。</div>
+      <div class="handoff-route" aria-hidden="true">
+        <span data-i18n="senderGate.routeFrom">接收者</span>
+        <span class="handoff-route-line"></span>
+        <span data-i18n="senderGate.routeTo">你（发送者）</span>
+      </div>
+      <div class="label strong" data-i18n="sender.pasteLabel">粘贴接收链接或接收码</div>
+      <input id="recipientInput" class="input mono" autocomplete="off" spellcheck="false" placeholder="https://example.com/?pub=... 或接收码" data-i18n-placeholder="sender.pastePlaceholder" aria-describedby="recipientGateError">
+      <div id="recipientGateError" class="field-error" role="alert"></div>
+      <div class="modal-actions">
+        <button id="useRecipientInput" class="btn primary" disabled data-i18n="sender.useRecipient">使用这个接收者</button>
+        <button id="recipientGateToReceiver" class="btn secondary" data-i18n="senderGate.backToReceiver">我是接收者</button>
+      </div>
+    </div>
+  </div>
 </div>
 
 <div id="keyShareModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="keyShareTitle">
@@ -684,6 +816,7 @@ let sodiumReady = false
 let sodiumLib = null
 const SESSION_PUB_KEY = "receiverPublicKey"
 const SESSION_PRIV_KEY = "receiverPrivateKey"
+const SESSION_HANDOFF_PREFIX = "receiverHandoffComplete:"
 const PUBLIC_KEY_REFRESH_MS = 60000
 const CIPHERTEXT_REFRESH_MS = 60000
 const PUBLIC_KEY_COLLAPSED_LIMIT = 3
@@ -703,12 +836,14 @@ let turnstileWidgetId = null
 let pendingTurnstile = null
 let currentRole = "receiver"
 let currentStatusKey = "status.loading"
+let receiverGatePublicKey = ""
+let recipientGateErrorKey = ""
 let currentLang = normalizeLanguage(localStorage.getItem(LANGUAGE_KEY) || "zh")
 
 const messages = {
   zh: {
     "app.title": "加密消息工具",
-    "app.subtitle": "先选身份，再按步骤发送或接收加密内容。",
+    "app.subtitle": "选择身份，安全地交接接收链接与加密内容。",
     "role.title": "你现在是谁？",
     "role.receiverTitle": "我是接收者",
     "role.receiverDesc": "生成接收链接，发给别人；等对方把加密内容发回来后再解开。",
@@ -726,12 +861,10 @@ const messages = {
     "common.untitled": "未命名",
     "common.showAll": "显示全部（{count}）",
     "common.showLatest": "只显示最新 {count} 条",
-    "receiver.title": "接收者步骤",
-    "receiver.subtitle": "你的浏览器会保管解锁码。本网站不会收到原文或解锁码。",
-    "receiver.step1": "生成接收链接。",
-    "receiver.step2": "把接收链接发给发送者。",
-    "receiver.step3": "等待对方把加密内容发回来。",
-    "receiver.step4": "粘贴或选择加密内容，然后解开。",
+    "receiver.title": "解密收到的内容",
+    "receiver.subtitle": "把发送者发回的密文粘贴到这里。解密只在当前浏览器中完成。",
+    "receiver.settingsTitle": "接收设置",
+    "receiver.settingsHelp": "保管好解锁码；接收链接可以分享，解锁码不可以。",
     "receiver.publicLabel": "接收码（公钥）",
     "receiver.privateLabel": "解锁码（私钥）",
     "receiver.publicPlaceholder": "正在准备接收码",
@@ -757,15 +890,12 @@ const messages = {
     "receiver.decryptFailedNoMatch": "解不开。接收码/解锁码可能和这段加密内容不匹配。",
     "receiver.decryptSuccess": "已解开。",
     "receiver.copyPlainSuccess": "原文已复制。",
-    "sender.title": "发送者步骤",
-    "sender.subtitle": "你只需要接收者的接收链接或接收码，不需要也不应该拿到解锁码。",
+    "sender.title": "加密要发送的内容",
+    "sender.subtitle": "内容只在当前浏览器中加密，接收者使用自己的解锁码打开。",
     "sender.backToReceiver": "切回接收者",
-    "sender.step1": "打开接收者发来的链接，或先选择/粘贴接收者。",
-    "sender.step2": "输入你要发送的内容。",
-    "sender.step3": "点击加密。",
-    "sender.step4": "复制加密内容，发回给接收者。",
-    "sender.noRecipient": "先选择接收者：粘贴接收链接/接收码，或从公开列表选择。",
+    "sender.noRecipient": "尚未选择接收者。",
     "sender.selectedRecipient": "已选择接收者：{code}",
+    "sender.changeRecipient": "更换接收者",
     "sender.pasteLabel": "粘贴接收链接或接收码",
     "sender.pastePlaceholder": "https://example.com/?pub=... 或接收码",
     "sender.useRecipient": "使用这个接收者",
@@ -782,10 +912,32 @@ const messages = {
     "sender.uploadCipher": "上传给接收者",
     "sender.recipientApplied": "已使用这个接收者。现在可以输入要发送的内容。",
     "sender.recipientMissing": "请先粘贴接收链接或接收码。",
+    "sender.recipientChecking": "加密引擎正在准备，请稍等。",
+    "sender.recipientInvalidLink": "这不是有效的接收链接：链接中必须包含 pub 参数。",
+    "sender.recipientInvalidCode": "接收码无效。请粘贴完整的接收链接或接收码。",
     "sender.encryptMissing": "接收者和要发送的内容都需要填写。",
     "sender.encryptSuccess": "已加密。下一步：复制加密内容发回给接收者。",
     "sender.copyCipherSuccess": "加密内容已复制。",
     "sender.noPublicKeys": "还没有公开的接收者。",
+    "receiverGate.eyebrow": "开始接收前",
+    "receiverGate.title": "先把接收链接发给发送者",
+    "receiverGate.help": "发送者需要这个链接才能为你加密内容。解锁码不会包含在链接中。",
+    "receiverGate.routeFrom": "你（接收者）",
+    "receiverGate.routeTo": "发送者",
+    "receiverGate.linkLabel": "要发送的接收链接",
+    "receiverGate.linkLoading": "正在生成接收链接…",
+    "receiverGate.copy": "复制接收链接",
+    "receiverGate.copied": "已复制。现在把接收链接发给发送者，再继续等待密文。",
+    "receiverGate.copyFailed": "自动复制失败。请手动复制上面的完整链接，然后确认。",
+    "receiverGate.manualConfirm": "我已手动复制，继续",
+    "receiverGate.continue": "我知道了，去粘贴密文",
+    "receiverGate.toSender": "我是发送者",
+    "senderGate.eyebrow": "开始发送前",
+    "senderGate.title": "先确认接收者",
+    "senderGate.help": "粘贴接收者发给你的接收链接或接收码。没有它，内容无法加密给正确的人。",
+    "senderGate.routeFrom": "接收者",
+    "senderGate.routeTo": "你（发送者）",
+    "senderGate.backToReceiver": "我是接收者",
     "keyModal.title": "公开接收者",
     "keyModal.help": "给这个接收者起个公开名称，别人就能从公开列表选择你。不要在名称里放敏感信息。",
     "keyModal.nameLabel": "公开名称",
@@ -830,7 +982,7 @@ const messages = {
   },
   en: {
     "app.title": "Encryption Tool",
-    "app.subtitle": "Choose your role first, then follow the steps to send or receive encrypted messages.",
+    "app.subtitle": "Choose a role and securely hand off receiver links and encrypted messages.",
     "role.title": "Who are you right now?",
     "role.receiverTitle": "I am the receiver",
     "role.receiverDesc": "Create a receiver link, send it to someone, then unlock the encrypted message they send back.",
@@ -848,12 +1000,10 @@ const messages = {
     "common.untitled": "Untitled",
     "common.showAll": "Show all ({count})",
     "common.showLatest": "Show latest {count}",
-    "receiver.title": "Receiver steps",
-    "receiver.subtitle": "Your browser keeps the unlock code. This site does not receive plaintext or your unlock code.",
-    "receiver.step1": "Create a receiver link.",
-    "receiver.step2": "Send the receiver link to the sender.",
-    "receiver.step3": "Wait for them to send back the encrypted message.",
-    "receiver.step4": "Paste or select the encrypted message, then unlock it.",
+    "receiver.title": "Unlock a received message",
+    "receiver.subtitle": "Paste the encrypted message sent back to you. It is unlocked only in this browser.",
+    "receiver.settingsTitle": "Receiver settings",
+    "receiver.settingsHelp": "Keep the unlock code private. The receiver link is safe to share; the unlock code is not.",
     "receiver.publicLabel": "Receiver code (public key)",
     "receiver.privateLabel": "Unlock code (private key)",
     "receiver.publicPlaceholder": "Preparing receiver code",
@@ -879,15 +1029,12 @@ const messages = {
     "receiver.decryptFailedNoMatch": "Cannot unlock. The receiver/unlock codes may not match this encrypted message.",
     "receiver.decryptSuccess": "Unlocked.",
     "receiver.copyPlainSuccess": "Plaintext copied.",
-    "sender.title": "Sender steps",
-    "sender.subtitle": "You only need the receiver link or receiver code. You do not need, and should not get, the unlock code.",
+    "sender.title": "Encrypt a message to send",
+    "sender.subtitle": "The message is encrypted only in this browser and opened with the receiver's unlock code.",
     "sender.backToReceiver": "Back to receiver",
-    "sender.step1": "Open the receiver's link, or choose/paste the receiver first.",
-    "sender.step2": "Type the message you want to send.",
-    "sender.step3": "Click encrypt.",
-    "sender.step4": "Copy the encrypted message and send it back to the receiver.",
-    "sender.noRecipient": "Choose a receiver first: paste a receiver link/code, or select one from the public list.",
+    "sender.noRecipient": "No receiver selected.",
     "sender.selectedRecipient": "Receiver selected: {code}",
+    "sender.changeRecipient": "Change receiver",
     "sender.pasteLabel": "Paste receiver link or receiver code",
     "sender.pastePlaceholder": "https://example.com/?pub=... or receiver code",
     "sender.useRecipient": "Use this receiver",
@@ -904,10 +1051,32 @@ const messages = {
     "sender.uploadCipher": "Upload for receiver",
     "sender.recipientApplied": "Receiver selected. Now type the message you want to send.",
     "sender.recipientMissing": "Paste a receiver link or receiver code first.",
+    "sender.recipientChecking": "The crypto engine is getting ready. Please wait.",
+    "sender.recipientInvalidLink": "This is not a valid receiver link. It must contain a pub parameter.",
+    "sender.recipientInvalidCode": "The receiver code is invalid. Paste the complete receiver link or code.",
     "sender.encryptMissing": "Receiver and message are both required.",
     "sender.encryptSuccess": "Encrypted. Next: copy the encrypted message and send it back to the receiver.",
     "sender.copyCipherSuccess": "Encrypted message copied.",
     "sender.noPublicKeys": "No public receivers are available.",
+    "receiverGate.eyebrow": "Before receiving",
+    "receiverGate.title": "Send your receiver link first",
+    "receiverGate.help": "The sender needs this link to encrypt a message for you. Your unlock code is never included.",
+    "receiverGate.routeFrom": "You (receiver)",
+    "receiverGate.routeTo": "Sender",
+    "receiverGate.linkLabel": "Receiver link to send",
+    "receiverGate.linkLoading": "Creating receiver link…",
+    "receiverGate.copy": "Copy receiver link",
+    "receiverGate.copied": "Copied. Send the receiver link to the sender, then wait for their encrypted message.",
+    "receiverGate.copyFailed": "Automatic copy failed. Copy the full link above manually, then confirm.",
+    "receiverGate.manualConfirm": "I copied it manually",
+    "receiverGate.continue": "Got it — paste ciphertext",
+    "receiverGate.toSender": "I am the sender",
+    "senderGate.eyebrow": "Before sending",
+    "senderGate.title": "Confirm the receiver first",
+    "senderGate.help": "Paste the receiver link or code they sent you. It is required to encrypt for the right person.",
+    "senderGate.routeFrom": "Receiver",
+    "senderGate.routeTo": "You (sender)",
+    "senderGate.backToReceiver": "I am the receiver",
     "keyModal.title": "Publish receiver",
     "keyModal.help": "Give this receiver a public name so others can choose you from the public list. Do not put sensitive information in the name.",
     "keyModal.nameLabel": "Public name",
@@ -978,15 +1147,29 @@ const ui = {
   backToDecrypt: document.getElementById("backToDecrypt"),
   decryptPanel: document.getElementById("decryptPanel"),
   encryptPanel: document.getElementById("encryptPanel"),
+  decryptTask: document.getElementById("decryptTask"),
+  encryptTask: document.getElementById("encryptTask"),
+  encryptResult: document.getElementById("encryptResult"),
   receiverRole: document.getElementById("receiverRole"),
   senderRole: document.getElementById("senderRole"),
+  changeRecipientBtn: document.getElementById("changeRecipientBtn"),
   recipientInput: document.getElementById("recipientInput"),
   useRecipientInput: document.getElementById("useRecipientInput"),
+  recipientGateError: document.getElementById("recipientGateError"),
+  recipientGateModal: document.getElementById("recipientGateModal"),
+  recipientGateToReceiver: document.getElementById("recipientGateToReceiver"),
   selectedRecipientInfo: document.getElementById("selectedRecipientInfo"),
   ciphertextList: document.getElementById("ciphertextList"),
   publicKeyList: document.getElementById("publicKeyList"),
   togglePubKeys: document.getElementById("togglePubKeys"),
   toggleCiphertexts: document.getElementById("toggleCiphertexts"),
+  receiverHandoffModal: document.getElementById("receiverHandoffModal"),
+  receiverLinkPreview: document.getElementById("receiverLinkPreview"),
+  receiverHandoffFeedback: document.getElementById("receiverHandoffFeedback"),
+  receiverGateCopy: document.getElementById("receiverGateCopy"),
+  receiverGateManual: document.getElementById("receiverGateManual"),
+  receiverGateContinue: document.getElementById("receiverGateContinue"),
+  receiverGateToSender: document.getElementById("receiverGateToSender"),
   keyShareModal: document.getElementById("keyShareModal"),
   keyShareName: document.getElementById("keyShareName"),
   keyShareFeedback: document.getElementById("keyShareFeedback"),
@@ -1036,6 +1219,7 @@ function applyI18n(){
   renderCiphertexts()
   updateRoleButtons()
   updateUploadSecurityFeedback()
+  ui.recipientGateError.textContent = recipientGateErrorKey ? t(recipientGateErrorKey) : ""
 }
 
 function setLanguage(lang){
@@ -1130,6 +1314,8 @@ function updateKeyActions(){
   ui.encryptBtn.disabled = !sodiumReady || !hasRecipient || !hasMessage
   ui.copyCipherBtn.disabled = !hasCiphertext
   ui.uploadCipherBtn.disabled = !hasCiphertext || uploadBlocked
+  ui.useRecipientInput.disabled = !sodiumReady
+  ui.receiverGateCopy.disabled = !sodiumReady || !hasPub
   updateSelectedRecipientInfo()
 }
 
@@ -1142,10 +1328,21 @@ function showRole(role){
   currentRole = role === "sender" ? "sender" : "receiver"
   ui.decryptPanel.classList.toggle("hidden", currentRole !== "receiver")
   ui.encryptPanel.classList.toggle("hidden", currentRole !== "sender")
+  ui.keyNotice.classList.toggle("hidden", currentRole !== "receiver")
   updateRoleButtons()
   if(currentRole === "receiver"){
+    hideRecipientGate()
     if(sodiumReady && (!ui.pub.value.trim() || !ui.priv.value.trim())) genkey()
     loadCiphertexts(true)
+    prepareReceiverHandoff()
+  }else{
+    hideReceiverHandoff()
+    if(ui.encryptPub.value.trim()){
+      hideRecipientGate()
+      focusTask(ui.encryptTask, ui.encryptMsg)
+    }else{
+      showRecipientGate()
+    }
   }
 }
 
@@ -1164,6 +1361,7 @@ function restoreSessionKeypair(){
   ui.pub.value = pub
   ui.priv.value = priv
   updateKeyActions()
+  prepareReceiverHandoff()
   return true
 }
 
@@ -1334,15 +1532,131 @@ function encryptLinkForPublicKey(){
   return `${base}?pub=${encodeURIComponent(pub)}`
 }
 
-function publicKeyFromPastedRecipient(value){
-  const clean = value.trim()
-  if(!clean) return ""
+function focusTask(container, target){
+  const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  container.classList.remove("attention")
+  void container.offsetWidth
+  container.classList.add("attention")
+  container.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" })
+  requestAnimationFrame(() => target.focus({ preventScroll: true }))
+}
+
+function receiverHandoffStorageKey(publicKey){
+  return `${SESSION_HANDOFF_PREFIX}${publicKey}`
+}
+
+function hideReceiverHandoff(){
+  ui.receiverHandoffModal.classList.add("hidden")
+}
+
+function resetReceiverHandoff(publicKey){
+  receiverGatePublicKey = publicKey
+  ui.receiverGateCopy.classList.remove("hidden")
+  ui.receiverGateManual.classList.add("hidden")
+  ui.receiverGateContinue.classList.add("hidden")
+  setModalFeedback(ui.receiverHandoffFeedback, "")
+}
+
+function prepareReceiverHandoff(){
+  if(currentRole !== "receiver") return
+  const publicKey = ui.pub.value.trim()
+  if(publicKey && sessionStorage.getItem(receiverHandoffStorageKey(publicKey)) === "1"){
+    hideReceiverHandoff()
+    focusTask(ui.decryptTask, ui.decryptMsg)
+    return
+  }
+  if(publicKey !== receiverGatePublicKey) resetReceiverHandoff(publicKey)
+  ui.receiverLinkPreview.value = encryptLinkForPublicKey()
+  updateKeyActions()
+  const wasHidden = ui.receiverHandoffModal.classList.contains("hidden")
+  ui.receiverHandoffModal.classList.remove("hidden")
+  if(wasHidden){
+    requestAnimationFrame(() => {
+      const target = ui.receiverGateCopy.disabled ? ui.receiverLinkPreview : ui.receiverGateCopy
+      target.focus()
+    })
+  }
+}
+
+function completeReceiverHandoff(){
+  const publicKey = ui.pub.value.trim()
+  if(!publicKey) return
+  sessionStorage.setItem(receiverHandoffStorageKey(publicKey), "1")
+  hideReceiverHandoff()
+  focusTask(ui.decryptTask, ui.decryptMsg)
+}
+
+async function copyReceiverLinkFromGate(){
+  const link = encryptLinkForPublicKey()
+  if(!link) return
+  const copied = await copyValue(link)
+  if(copied){
+    setModalFeedback(ui.receiverHandoffFeedback, t("receiverGate.copied"), "success")
+    ui.receiverGateCopy.classList.add("hidden")
+    ui.receiverGateManual.classList.add("hidden")
+    ui.receiverGateContinue.classList.remove("hidden")
+    ui.receiverGateContinue.focus()
+    return
+  }
+  setModalFeedback(ui.receiverHandoffFeedback, t("receiverGate.copyFailed"), "error")
+  ui.receiverGateManual.classList.remove("hidden")
+  ui.receiverLinkPreview.focus()
+  ui.receiverLinkPreview.select()
+}
+
+function setRecipientGateError(key){
+  recipientGateErrorKey = key
+  ui.recipientGateError.textContent = key ? t(key) : ""
+}
+
+function showRecipientGate(options = {}){
+  hideReceiverHandoff()
+  if(options.prefill && ui.encryptPub.value.trim()){
+    ui.recipientInput.value = ui.encryptPub.value.trim()
+  }
+  setRecipientGateError("")
+  ui.recipientGateModal.classList.remove("hidden")
+  updateKeyActions()
+  requestAnimationFrame(() => ui.recipientInput.focus())
+}
+
+function hideRecipientGate(){
+  ui.recipientGateModal.classList.add("hidden")
+  setRecipientGateError("")
+}
+
+function parseRecipient(value){
+  const clean = String(value || "").trim()
+  if(!clean) return { error: "sender.recipientMissing" }
+  if(!sodiumReady) return { error: "sender.recipientChecking" }
+
+  let publicKey = clean
+  const looksLikeLink = /^[a-z][a-z\d+.-]*:\/\//i.test(clean) || clean.includes("?pub=")
+  if(looksLikeLink){
+    try{
+      const url = new URL(clean, location.href)
+      publicKey = (url.searchParams.get("pub") || "").trim()
+      if(!publicKey) return { error: "sender.recipientInvalidLink" }
+    }catch{
+      return { error: "sender.recipientInvalidLink" }
+    }
+  }
+
   try{
-    const url = new URL(clean, location.href)
-    const pub = url.searchParams.get("pub")
-    if(pub) return pub.trim()
-  }catch{}
-  return clean
+    const bytes = safeBase64ToBytes(publicKey)
+    if(bytes.length !== sodiumLib.crypto_box_PUBLICKEYBYTES){
+      return { error: "sender.recipientInvalidCode" }
+    }
+  }catch{
+    return { error: "sender.recipientInvalidCode" }
+  }
+  return { publicKey }
+}
+
+function updateRecipientUrl(publicKey){
+  const url = new URL(location.href)
+  url.searchParams.set("pub", publicKey)
+  history.replaceState("", document.title, `${url.pathname}${url.search}${url.hash}`)
 }
 
 function showKeyShareModal(){
@@ -1389,6 +1703,7 @@ async function genkey(options = {}){
     updateKeyActions()
     setNotice(ui.keyNotice, t("receiver.keyReady"))
     loadCiphertexts(true)
+    prepareReceiverHandoff()
   }catch(err){
     setNotice(ui.keyNotice, t("keygen.failed", { message: err.message || String(err) }))
   }
@@ -1408,7 +1723,7 @@ function updateSelectedRecipientInfo(){
     : t("sender.noRecipient")
 }
 
-function openEncryptForPublicKey(publicKey){
+function openEncryptForPublicKey(publicKey, options = {}){
   ui.encryptPub.value = publicKey
   ui.recipientInput.value = ""
   ui.encryptMsg.value = ""
@@ -1416,16 +1731,31 @@ function openEncryptForPublicKey(publicKey){
   setNotice(ui.encryptNotice, t("sender.recipientApplied"))
   updateKeyActions()
   hideCipherShareModal()
+  hideRecipientGate()
+  if(options.updateUrl !== false) updateRecipientUrl(publicKey)
   showRole("sender")
+  focusTask(ui.encryptTask, ui.encryptMsg)
 }
 
-function usePastedRecipient(){
-  const publicKey = publicKeyFromPastedRecipient(ui.recipientInput.value)
-  if(!publicKey){
-    setNotice(ui.encryptNotice, t("sender.recipientMissing"))
+function usePastedRecipient(options = {}){
+  const parsed = parseRecipient(ui.recipientInput.value)
+  if(parsed.error){
+    setRecipientGateError(parsed.error)
+    return false
+  }
+  openEncryptForPublicKey(parsed.publicKey, options)
+  return true
+}
+
+function selectPublicRecipient(publicKey){
+  const parsed = parseRecipient(publicKey)
+  if(parsed.error){
+    ui.recipientInput.value = publicKey
+    showRecipientGate()
+    setRecipientGateError(parsed.error)
     return
   }
-  openEncryptForPublicKey(publicKey)
+  openEncryptForPublicKey(parsed.publicKey)
 }
 
 async function encrypt(){
@@ -1446,6 +1776,7 @@ async function encrypt(){
     ui.encryptOut.value = safeBytesToBase64(cipher)
     updateKeyActions()
     setNotice(ui.encryptNotice, t("sender.encryptSuccess"))
+    focusTask(ui.encryptResult, ui.copyCipherBtn)
   }catch(err){
     setNotice(ui.encryptNotice, t("encrypt.failed", { message: err.message || String(err) }))
   }
@@ -1632,7 +1963,7 @@ function renderPublicKeys(){
     visibleRecords,
     (record) => record.name || t("common.untitled"),
     (record) => `${shortValue(record.publicKey || "")} · ${formatDate(record.createdAt)}`,
-    (record) => openEncryptForPublicKey(record.publicKey || "")
+    (record) => selectPublicRecipient(record.publicKey || "")
   )
 
   const hasOverflow = publicKeyRecords.length > PUBLIC_KEY_COLLAPSED_LIMIT
@@ -1658,9 +1989,25 @@ ui.copyLinkBtn.addEventListener("click", copyReceiverLink)
 ui.publishKeyBtn.addEventListener("click", showKeyShareModal)
 ui.receiverRole.addEventListener("click", () => showRole("receiver"))
 ui.senderRole.addEventListener("click", () => showRole("sender"))
-ui.useRecipientInput.addEventListener("click", usePastedRecipient)
+ui.changeRecipientBtn.addEventListener("click", () => showRecipientGate({ prefill: true }))
+ui.useRecipientInput.addEventListener("click", () => usePastedRecipient())
 ui.recipientInput.addEventListener("keydown", (event) => {
-  if(event.key === "Enter") usePastedRecipient()
+  if(event.key === "Enter"){
+    event.preventDefault()
+    usePastedRecipient()
+  }
+})
+ui.recipientInput.addEventListener("input", () => setRecipientGateError(""))
+ui.receiverGateCopy.addEventListener("click", copyReceiverLinkFromGate)
+ui.receiverGateContinue.addEventListener("click", completeReceiverHandoff)
+ui.receiverGateManual.addEventListener("click", completeReceiverHandoff)
+ui.receiverGateToSender.addEventListener("click", () => showRole("sender"))
+ui.recipientGateToReceiver.addEventListener("click", () => {
+  history.replaceState("", document.title, location.pathname)
+  ui.encryptPub.value = ""
+  ui.encryptOut.value = ""
+  showRole("receiver")
+  updateKeyActions()
 })
 ui.encryptMsg.addEventListener("input", updateKeyActions)
 ui.decryptMsg.addEventListener("input", updateKeyActions)
@@ -1729,8 +2076,35 @@ document.querySelectorAll("[data-lang-option]").forEach((el) => {
   el.addEventListener("click", () => setLanguage(el.dataset.langOption))
 })
 
-const selectable = [ui.pub, ui.priv, ui.encryptPub, ui.encryptMsg, ui.encryptOut, ui.decryptMsg, ui.decryptOut, ui.keyShareName, ui.cipherShareName, ui.recipientInput]
+const selectable = [ui.pub, ui.priv, ui.encryptMsg, ui.encryptOut, ui.decryptMsg, ui.decryptOut, ui.keyShareName, ui.cipherShareName, ui.recipientInput, ui.receiverLinkPreview]
 selectable.forEach((el) => el.addEventListener("focus", () => el.select()))
+
+document.addEventListener("keydown", (event) => {
+  const modals = [...document.querySelectorAll(".modal:not(.hidden)")]
+  const modal = modals.at(-1)
+  if(!modal) return
+
+  if(event.key === "Escape"){
+    if(modal === ui.keyShareModal) hideKeyShareModal()
+    if(modal === ui.cipherShareModal) hideCipherShareModal()
+    if(modal === ui.receiverHandoffModal || modal === ui.recipientGateModal) event.preventDefault()
+    return
+  }
+  if(event.key !== "Tab") return
+
+  const focusable = [...modal.querySelectorAll("button, input, textarea, [tabindex]:not([tabindex='-1'])")]
+    .filter((el) => !el.disabled && !el.classList.contains("hidden") && el.offsetParent !== null)
+  if(!focusable.length) return
+  const first = focusable[0]
+  const last = focusable.at(-1)
+  if(event.shiftKey && document.activeElement === first){
+    event.preventDefault()
+    last.focus()
+  }else if(!event.shiftKey && document.activeElement === last){
+    event.preventDefault()
+    first.focus()
+  }
+})
 
 function applyTheme(isLight){
   document.documentElement.classList.toggle("light", isLight)
@@ -1753,7 +2127,7 @@ window.addEventListener("load", () => {
   const params = new URLSearchParams(location.search)
   const pubParam = params.get("pub")
   if(pubParam){
-    ui.encryptPub.value = pubParam
+    ui.recipientInput.value = location.href
     showRole("sender")
   }else{
     showRole("receiver")
@@ -1762,6 +2136,7 @@ window.addEventListener("load", () => {
   updateKeyActions()
   initSodium().then(() => {
     const restored = restoreSessionKeypair()
+    if(pubParam) usePastedRecipient({ updateUrl: false })
     if(!restored && currentRole === "receiver"){
       genkey()
     }
