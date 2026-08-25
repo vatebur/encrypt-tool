@@ -353,59 +353,6 @@ body::before{
   border-color:color-mix(in srgb, var(--accent) 45%, var(--border));
   background:color-mix(in srgb, var(--accent) 10%, var(--panel));
 }
-.inline-form{
-  display:grid;
-  grid-template-columns:1fr auto;
-  gap:8px;
-  align-items:end;
-}
-@media (max-width:720px){.inline-form{grid-template-columns:1fr;}}
-.record-list{
-  display:grid;
-  gap:8px;
-  margin-top:10px;
-}
-.record-item{
-  width:100%;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  border:1px solid var(--border);
-  border-radius:12px;
-  background:var(--panel-2);
-  color:var(--text);
-  padding:10px 12px;
-  cursor:pointer;
-  text-align:left;
-}
-.record-item:hover{
-  border-color:color-mix(in srgb, var(--accent) 55%, var(--border));
-  box-shadow:0 0 0 3px color-mix(in srgb, var(--accent) 16%, transparent);
-}
-.record-name{
-  overflow:hidden;
-  text-overflow:ellipsis;
-  white-space:nowrap;
-}
-.record-meta{
-  color:var(--muted);
-  font-size:11px;
-  white-space:nowrap;
-}
-.empty-list{
-  color:var(--muted);
-  font-size:12px;
-  margin-top:8px;
-}
-.list-toggle{margin-top:8px;}
-.list-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  margin-top:16px;
-}
 .modal{
   position:fixed;
   inset:0;
@@ -580,14 +527,6 @@ body::before{
   background:color-mix(in srgb, var(--danger) 14%, var(--panel));
   color:color-mix(in srgb, var(--danger) 82%, var(--text));
 }
-.turnstile-mount{
-  position:fixed;
-  right:12px;
-  bottom:12px;
-  z-index:20;
-  min-width:1px;
-  min-height:1px;
-}
 </style>
 </head>
 <body>
@@ -664,21 +603,8 @@ body::before{
 
     <div class="actions">
       <button id="copyLinkBtn" class="btn primary copy-btn" disabled data-i18n="receiver.copyLink">复制接收链接</button>
-      <button id="publishKeyBtn" class="btn secondary" disabled data-i18n="receiver.publishKey">公开到列表</button>
       <button id="genBtn" class="btn secondary" disabled data-i18n="receiver.regenerate">重新生成</button>
     </div>
-
-    <div class="separator"></div>
-
-    <div class="list-head">
-      <div>
-        <h2 class="section-title" style="margin:0;" data-i18n="receiver.cipherListTitle">别人上传给我的加密内容</h2>
-        <div class="subtle" data-i18n="receiver.cipherListHelp">可选辅助：也可以让发送者直接复制给你。每 60 秒自动刷新。</div>
-      </div>
-      <button id="refreshCiphertexts" class="btn secondary" data-i18n="actions.refresh">刷新</button>
-    </div>
-    <div id="ciphertextList" class="record-list"></div>
-    <button id="toggleCiphertexts" class="btn secondary list-toggle hidden">显示全部</button>
   </section>
 
   <section id="encryptPanel" class="card hidden">
@@ -709,23 +635,10 @@ body::before{
         <textarea id="encrypt_out" class="textarea mono" readonly placeholder="加密后的内容会显示在这里" data-i18n-placeholder="sender.encryptedPlaceholder"></textarea>
         <div class="actions">
           <button id="copyCipherBtn" class="btn primary copy-btn" disabled data-i18n="sender.copyCipher">复制加密内容</button>
-          <button id="uploadCipherBtn" class="btn secondary" disabled data-i18n="sender.uploadCipher">上传给接收者</button>
         </div>
       </div>
       <div id="encryptNotice" class="notice"></div>
     </div>
-
-    <div class="separator"></div>
-
-    <div class="list-head">
-      <div>
-        <h2 class="section-title" style="margin:0;" data-i18n="sender.publicListTitle">公开的接收者</h2>
-        <div class="subtle" data-i18n="sender.publicListHelp">可选辅助：接收者公开后，你可以从这里选择。每 60 秒自动刷新。</div>
-      </div>
-      <button id="refreshPubKeys" class="btn secondary" data-i18n="actions.refresh">刷新</button>
-    </div>
-    <div id="publicKeyList" class="record-list"></div>
-    <button id="togglePubKeys" class="btn secondary list-toggle hidden">显示全部</button>
   </section>
 
   <div id="keyNotice" class="notice" style="margin-top:12px;"></div>
@@ -779,61 +692,13 @@ body::before{
   </div>
 </div>
 
-<div id="keyShareModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="keyShareTitle">
-  <div class="modal-box">
-    <h2 id="keyShareTitle" class="section-title" data-i18n="keyModal.title">公开接收者</h2>
-    <div class="subtle" data-i18n="keyModal.help">给这个接收者起个公开名称，别人就能从公开列表选择你。不要在名称里放敏感信息。</div>
-    <div class="label strong" data-i18n="keyModal.nameLabel">公开名称</div>
-    <input id="keyShareName" class="input" maxlength="80" placeholder="不填则使用 4 位随机名称" data-i18n-placeholder="keyModal.namePlaceholder">
-    <div id="keyShareFeedback" class="modal-feedback" role="status" aria-live="polite"></div>
-    <div class="modal-actions">
-      <button id="modalUploadPub" class="btn primary" data-i18n="keyModal.upload">公开到列表</button>
-      <button id="modalCopyLink" class="btn secondary copy-btn" data-i18n="keyModal.copyLink">复制接收链接</button>
-      <button id="modalClose" class="btn secondary" data-i18n="actions.close">关闭</button>
-    </div>
-  </div>
-</div>
-
-<div id="cipherShareModal" class="modal hidden" role="dialog" aria-modal="true" aria-labelledby="cipherShareTitle">
-  <div class="modal-box">
-    <h2 id="cipherShareTitle" class="section-title" data-i18n="cipherModal.title">上传加密内容</h2>
-    <div class="subtle" data-i18n="cipherModal.help">给这段加密内容起个名称，然后上传给对应接收者。你也可以不上传，直接复制发回给接收者。</div>
-    <div class="label strong" data-i18n="cipherModal.nameLabel">加密内容名称</div>
-    <input id="cipherShareName" class="input" maxlength="80" placeholder="不填则使用 4 位随机名称" data-i18n-placeholder="cipherModal.namePlaceholder">
-    <div id="cipherShareFeedback" class="modal-feedback" role="status" aria-live="polite"></div>
-    <div class="modal-actions">
-      <button id="modalSaveCipher" class="btn primary" data-i18n="cipherModal.upload">上传给接收者</button>
-      <button id="modalCopyCipher" class="btn secondary copy-btn" data-i18n="cipherModal.copy">复制加密内容</button>
-      <button id="cipherModalClose" class="btn secondary" data-i18n="actions.close">关闭</button>
-    </div>
-  </div>
-</div>
-
-<div id="turnstileMount" class="turnstile-mount"></div>
-
 <script type="module">
 let sodiumReady = false
 let sodiumLib = null
 const SESSION_PUB_KEY = "receiverPublicKey"
 const SESSION_PRIV_KEY = "receiverPrivateKey"
 const SESSION_HANDOFF_PREFIX = "receiverHandoffComplete:"
-const PUBLIC_KEY_REFRESH_MS = 60000
-const CIPHERTEXT_REFRESH_MS = 60000
-const PUBLIC_KEY_COLLAPSED_LIMIT = 3
-const CIPHERTEXT_COLLAPSED_LIMIT = 3
-const TURNSTILE_SCRIPT_URL = "https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit"
-const TURNSTILE_TIMEOUT_MS = 60000
 const LANGUAGE_KEY = "language"
-let publicKeyRecords = []
-let publicKeysExpanded = false
-let ciphertextRecords = []
-let ciphertextsExpanded = false
-let turnstileSiteKey = ""
-let turnstileConfigLoaded = false
-let turnstileConfigError = ""
-let turnstileReadyPromise = null
-let turnstileWidgetId = null
-let pendingTurnstile = null
 let currentRole = "receiver"
 let currentStatusKey = "status.loading"
 let receiverGatePublicKey = ""
@@ -855,12 +720,6 @@ const messages = {
     "status.loading": "正在准备加密引擎…",
     "status.ready": "加密引擎已准备好",
     "status.error": "加密引擎出错",
-    "actions.refresh": "刷新",
-    "actions.close": "关闭",
-    "common.empty": "还没有记录。",
-    "common.untitled": "未命名",
-    "common.showAll": "显示全部（{count}）",
-    "common.showLatest": "只显示最新 {count} 条",
     "receiver.title": "解密收到的内容",
     "receiver.subtitle": "把发送者发回的密文粘贴到这里。解密只在当前浏览器中完成。",
     "receiver.settingsTitle": "接收设置",
@@ -871,10 +730,7 @@ const messages = {
     "receiver.privatePlaceholder": "只给自己看，不要发给别人",
     "receiver.keyHint": "不要分享解锁码。关闭标签页或换设备后，之前收到的内容可能无法再解开。",
     "receiver.copyLink": "复制接收链接",
-    "receiver.publishKey": "公开到列表",
     "receiver.regenerate": "重新生成",
-    "receiver.cipherListTitle": "别人上传给我的加密内容",
-    "receiver.cipherListHelp": "可选辅助：也可以让发送者直接复制给你。每 60 秒自动刷新。",
     "receiver.encryptedLabel": "加密内容（密文）",
     "receiver.encryptedPlaceholder": "把收到的加密内容粘贴到这里",
     "receiver.decrypt": "解开内容",
@@ -899,8 +755,6 @@ const messages = {
     "sender.pasteLabel": "粘贴接收链接或接收码",
     "sender.pastePlaceholder": "https://example.com/?pub=... 或接收码",
     "sender.useRecipient": "使用这个接收者",
-    "sender.publicListTitle": "公开的接收者",
-    "sender.publicListHelp": "可选辅助：接收者公开后，你可以从这里选择。每 60 秒自动刷新。",
     "sender.recipientLabel": "接收者的接收码（公钥）",
     "sender.recipientPlaceholder": "先选择接收者",
     "sender.messageLabel": "要发送的内容",
@@ -909,7 +763,6 @@ const messages = {
     "sender.encryptedLabel": "加密内容（密文）",
     "sender.encryptedPlaceholder": "加密后的内容会显示在这里",
     "sender.copyCipher": "复制加密内容",
-    "sender.uploadCipher": "上传给接收者",
     "sender.recipientApplied": "已使用这个接收者。现在可以输入要发送的内容。",
     "sender.recipientMissing": "请先粘贴接收链接或接收码。",
     "sender.recipientChecking": "加密引擎正在准备，请稍等。",
@@ -918,7 +771,6 @@ const messages = {
     "sender.encryptMissing": "接收者和要发送的内容都需要填写。",
     "sender.encryptSuccess": "已加密。下一步：复制加密内容发回给接收者。",
     "sender.copyCipherSuccess": "加密内容已复制。",
-    "sender.noPublicKeys": "还没有公开的接收者。",
     "receiverGate.eyebrow": "开始接收前",
     "receiverGate.title": "先把接收链接发给发送者",
     "receiverGate.help": "发送者需要这个链接才能为你加密内容。解锁码不会包含在链接中。",
@@ -938,43 +790,6 @@ const messages = {
     "senderGate.routeFrom": "接收者",
     "senderGate.routeTo": "你（发送者）",
     "senderGate.backToReceiver": "我是接收者",
-    "keyModal.title": "公开接收者",
-    "keyModal.help": "给这个接收者起个公开名称，别人就能从公开列表选择你。不要在名称里放敏感信息。",
-    "keyModal.nameLabel": "公开名称",
-    "keyModal.namePlaceholder": "不填则使用 4 位随机名称",
-    "keyModal.upload": "公开到列表",
-    "keyModal.copyLink": "复制接收链接",
-    "keyModal.generateFirst": "请先生成接收码。",
-    "keyModal.verifying": "正在验证上传。",
-    "keyModal.uploading": "正在公开到列表。",
-    "keyModal.uploaded": "已公开到列表。",
-    "keyModal.uploadFailed": "上传失败：{message}",
-    "keyModal.linkCopied": "接收链接已复制。",
-    "keyModal.linkCopyFailed": "复制失败。请手动复制接收链接。",
-    "cipherModal.title": "上传加密内容",
-    "cipherModal.help": "给这段加密内容起个名称，然后上传给对应接收者。你也可以不上传，直接复制发回给接收者。",
-    "cipherModal.nameLabel": "加密内容名称",
-    "cipherModal.namePlaceholder": "不填则使用 4 位随机名称",
-    "cipherModal.upload": "上传给接收者",
-    "cipherModal.copy": "复制加密内容",
-    "cipherModal.required": "加密内容和接收者都需要填写。",
-    "cipherModal.verifying": "正在验证上传。",
-    "cipherModal.uploading": "正在上传加密内容。",
-    "cipherModal.uploaded": "加密内容已上传。",
-    "cipherModal.uploadFailed": "上传失败：{message}",
-    "cipherModal.copied": "加密内容已复制。",
-    "cipherModal.copyFailed": "复制失败。请手动复制加密内容。",
-    "upload.loading": "上传验证正在加载，请稍等。",
-    "upload.configError": "上传验证无法加载：{message}",
-    "upload.disabled": "上传功能未配置，暂时不能上传。",
-    "upload.scriptError": "上传验证无法加载。",
-    "upload.verifyFailed": "验证失败，请重试。",
-    "upload.verifyExpired": "验证已过期，请重试。",
-    "upload.verifyTimeout": "验证超时，请重试。",
-    "upload.inProgress": "验证正在进行，请稍等。",
-    "api.failed": "请求失败，状态码 {status}",
-    "load.failed": "加载失败：{message}",
-    "load.publicKeysFailed": "加载公开接收者失败：{message}",
     "keygen.failed": "生成失败：{message}",
     "encrypt.failed": "加密失败：{message}",
     "decrypt.failed": "解开失败：{message}",
@@ -994,12 +809,6 @@ const messages = {
     "status.loading": "Loading crypto engine…",
     "status.ready": "Crypto engine ready",
     "status.error": "Crypto engine error",
-    "actions.refresh": "Refresh",
-    "actions.close": "Close",
-    "common.empty": "No records found.",
-    "common.untitled": "Untitled",
-    "common.showAll": "Show all ({count})",
-    "common.showLatest": "Show latest {count}",
     "receiver.title": "Unlock a received message",
     "receiver.subtitle": "Paste the encrypted message sent back to you. It is unlocked only in this browser.",
     "receiver.settingsTitle": "Receiver settings",
@@ -1010,10 +819,7 @@ const messages = {
     "receiver.privatePlaceholder": "Only for you. Do not share it.",
     "receiver.keyHint": "Do not share the unlock code. If you close this tab or switch devices, older messages may not be unlockable.",
     "receiver.copyLink": "Copy receiver link",
-    "receiver.publishKey": "Publish to list",
     "receiver.regenerate": "Regenerate",
-    "receiver.cipherListTitle": "Encrypted messages uploaded for me",
-    "receiver.cipherListHelp": "Optional helper: the sender can also copy the encrypted message directly to you. Auto refreshes every 60 seconds.",
     "receiver.encryptedLabel": "Encrypted message (ciphertext)",
     "receiver.encryptedPlaceholder": "Paste the encrypted message you received",
     "receiver.decrypt": "Unlock message",
@@ -1038,8 +844,6 @@ const messages = {
     "sender.pasteLabel": "Paste receiver link or receiver code",
     "sender.pastePlaceholder": "https://example.com/?pub=... or receiver code",
     "sender.useRecipient": "Use this receiver",
-    "sender.publicListTitle": "Public receivers",
-    "sender.publicListHelp": "Optional helper: if a receiver publishes themselves, you can choose them here. Auto refreshes every 60 seconds.",
     "sender.recipientLabel": "Receiver's receiver code (public key)",
     "sender.recipientPlaceholder": "Choose a receiver first",
     "sender.messageLabel": "Message to send",
@@ -1048,7 +852,6 @@ const messages = {
     "sender.encryptedLabel": "Encrypted message (ciphertext)",
     "sender.encryptedPlaceholder": "Encrypted message appears here",
     "sender.copyCipher": "Copy encrypted message",
-    "sender.uploadCipher": "Upload for receiver",
     "sender.recipientApplied": "Receiver selected. Now type the message you want to send.",
     "sender.recipientMissing": "Paste a receiver link or receiver code first.",
     "sender.recipientChecking": "The crypto engine is getting ready. Please wait.",
@@ -1057,7 +860,6 @@ const messages = {
     "sender.encryptMissing": "Receiver and message are both required.",
     "sender.encryptSuccess": "Encrypted. Next: copy the encrypted message and send it back to the receiver.",
     "sender.copyCipherSuccess": "Encrypted message copied.",
-    "sender.noPublicKeys": "No public receivers are available.",
     "receiverGate.eyebrow": "Before receiving",
     "receiverGate.title": "Send your receiver link first",
     "receiverGate.help": "The sender needs this link to encrypt a message for you. Your unlock code is never included.",
@@ -1077,43 +879,6 @@ const messages = {
     "senderGate.routeFrom": "Receiver",
     "senderGate.routeTo": "You (sender)",
     "senderGate.backToReceiver": "I am the receiver",
-    "keyModal.title": "Publish receiver",
-    "keyModal.help": "Give this receiver a public name so others can choose you from the public list. Do not put sensitive information in the name.",
-    "keyModal.nameLabel": "Public name",
-    "keyModal.namePlaceholder": "4-digit random name if empty",
-    "keyModal.upload": "Publish to list",
-    "keyModal.copyLink": "Copy receiver link",
-    "keyModal.generateFirst": "Create a receiver code first.",
-    "keyModal.verifying": "Verifying upload.",
-    "keyModal.uploading": "Publishing to list.",
-    "keyModal.uploaded": "Published to list.",
-    "keyModal.uploadFailed": "Upload failed: {message}",
-    "keyModal.linkCopied": "Receiver link copied.",
-    "keyModal.linkCopyFailed": "Copy failed. Please copy the receiver link manually.",
-    "cipherModal.title": "Upload encrypted message",
-    "cipherModal.help": "Name this encrypted message, then upload it for the receiver. You can also skip upload and copy it directly back to the receiver.",
-    "cipherModal.nameLabel": "Encrypted message name",
-    "cipherModal.namePlaceholder": "4-digit random name if empty",
-    "cipherModal.upload": "Upload for receiver",
-    "cipherModal.copy": "Copy encrypted message",
-    "cipherModal.required": "Encrypted message and receiver are required.",
-    "cipherModal.verifying": "Verifying upload.",
-    "cipherModal.uploading": "Uploading encrypted message.",
-    "cipherModal.uploaded": "Encrypted message uploaded.",
-    "cipherModal.uploadFailed": "Upload failed: {message}",
-    "cipherModal.copied": "Encrypted message copied.",
-    "cipherModal.copyFailed": "Copy failed. Please copy the encrypted message manually.",
-    "upload.loading": "Upload verification is loading. Please wait.",
-    "upload.configError": "Upload verification could not load: {message}",
-    "upload.disabled": "Uploads are disabled because upload verification is not configured.",
-    "upload.scriptError": "Upload verification could not load.",
-    "upload.verifyFailed": "Verification failed. Please try again.",
-    "upload.verifyExpired": "Verification expired. Please try again.",
-    "upload.verifyTimeout": "Verification timed out. Please try again.",
-    "upload.inProgress": "Verification is already in progress.",
-    "api.failed": "Request failed with {status}",
-    "load.failed": "Load failed: {message}",
-    "load.publicKeysFailed": "Load public receivers failed: {message}",
     "keygen.failed": "Key generation failed: {message}",
     "encrypt.failed": "Encrypt failed: {message}",
     "decrypt.failed": "Unlock failed: {message}",
@@ -1135,15 +900,10 @@ const ui = {
   decryptOut: document.getElementById("decrypt_out"),
   genBtn: document.getElementById("genBtn"),
   copyLinkBtn: document.getElementById("copyLinkBtn"),
-  publishKeyBtn: document.getElementById("publishKeyBtn"),
-  encryptLatestKey: null,
-  refreshPubKeys: document.getElementById("refreshPubKeys"),
   encryptBtn: document.getElementById("encryptBtn"),
   decryptBtn: document.getElementById("decryptBtn"),
   copyPlain: document.getElementById("copyPlain"),
   copyCipherBtn: document.getElementById("copyCipherBtn"),
-  uploadCipherBtn: document.getElementById("uploadCipherBtn"),
-  refreshCiphertexts: document.getElementById("refreshCiphertexts"),
   backToDecrypt: document.getElementById("backToDecrypt"),
   decryptPanel: document.getElementById("decryptPanel"),
   encryptPanel: document.getElementById("encryptPanel"),
@@ -1159,10 +919,6 @@ const ui = {
   recipientGateModal: document.getElementById("recipientGateModal"),
   recipientGateToReceiver: document.getElementById("recipientGateToReceiver"),
   selectedRecipientInfo: document.getElementById("selectedRecipientInfo"),
-  ciphertextList: document.getElementById("ciphertextList"),
-  publicKeyList: document.getElementById("publicKeyList"),
-  togglePubKeys: document.getElementById("togglePubKeys"),
-  toggleCiphertexts: document.getElementById("toggleCiphertexts"),
   receiverHandoffModal: document.getElementById("receiverHandoffModal"),
   receiverLinkPreview: document.getElementById("receiverLinkPreview"),
   receiverHandoffFeedback: document.getElementById("receiverHandoffFeedback"),
@@ -1170,19 +926,6 @@ const ui = {
   receiverGateManual: document.getElementById("receiverGateManual"),
   receiverGateContinue: document.getElementById("receiverGateContinue"),
   receiverGateToSender: document.getElementById("receiverGateToSender"),
-  keyShareModal: document.getElementById("keyShareModal"),
-  keyShareName: document.getElementById("keyShareName"),
-  keyShareFeedback: document.getElementById("keyShareFeedback"),
-  modalUploadPub: document.getElementById("modalUploadPub"),
-  modalCopyLink: document.getElementById("modalCopyLink"),
-  modalClose: document.getElementById("modalClose"),
-  cipherShareModal: document.getElementById("cipherShareModal"),
-  cipherShareName: document.getElementById("cipherShareName"),
-  cipherShareFeedback: document.getElementById("cipherShareFeedback"),
-  modalSaveCipher: document.getElementById("modalSaveCipher"),
-  modalCopyCipher: document.getElementById("modalCopyCipher"),
-  cipherModalClose: document.getElementById("cipherModalClose"),
-  turnstileMount: document.getElementById("turnstileMount"),
   themeToggle: document.getElementById("themeToggle"),
   themeLabel: document.getElementById("themeLabel")
 }
@@ -1215,10 +958,7 @@ function applyI18n(){
   ui.themeLabel.textContent = isLight ? t("theme.switchToDark") : t("theme.switchToLight")
   ui.status.textContent = t(currentStatusKey)
   updateSelectedRecipientInfo()
-  renderPublicKeys()
-  renderCiphertexts()
   updateRoleButtons()
-  updateUploadSecurityFeedback()
   ui.recipientGateError.textContent = recipientGateErrorKey ? t(recipientGateErrorKey) : ""
 }
 
@@ -1279,41 +1019,17 @@ function safeBytesToBase64(bytes){
   return sodiumLib.to_base64(bytes)
 }
 
-function uploadSecurityMessage(){
-  if(turnstileSiteKey) return ""
-  if(!turnstileConfigLoaded) return t("upload.loading")
-  if(turnstileConfigError) return t("upload.configError", { message: turnstileConfigError })
-  return t("upload.disabled")
-}
-
-function updateUploadSecurityFeedback(){
-  const message = uploadSecurityMessage()
-  if(!ui.keyShareModal.classList.contains("hidden")){
-    setModalFeedback(ui.keyShareFeedback, message, message ? "error" : "success")
-  }
-  if(!ui.cipherShareModal.classList.contains("hidden")){
-    setModalFeedback(ui.cipherShareFeedback, message, message ? "error" : "success")
-  }
-}
-
 function updateKeyActions(){
   const hasPub = ui.pub.value.trim().length > 0
   const hasPriv = ui.priv.value.trim().length > 0
   const hasRecipient = ui.encryptPub.value.trim().length > 0
   const hasMessage = ui.encryptMsg.value.length > 0
-  const uploadBlocked = !!uploadSecurityMessage()
   const hasCiphertext = ui.encryptOut.value.trim().length > 0 && hasRecipient
   ui.genBtn.disabled = !sodiumReady
   ui.copyLinkBtn.disabled = !hasPub
-  ui.publishKeyBtn.disabled = !hasPub
-  ui.modalUploadPub.disabled = !hasPub || uploadBlocked
-  ui.modalCopyLink.disabled = !hasPub
-  ui.modalSaveCipher.disabled = !hasCiphertext || uploadBlocked
-  ui.modalCopyCipher.disabled = !hasCiphertext
   ui.decryptBtn.disabled = !sodiumReady || !hasPub || !hasPriv
   ui.encryptBtn.disabled = !sodiumReady || !hasRecipient || !hasMessage
   ui.copyCipherBtn.disabled = !hasCiphertext
-  ui.uploadCipherBtn.disabled = !hasCiphertext || uploadBlocked
   ui.useRecipientInput.disabled = !sodiumReady
   ui.receiverGateCopy.disabled = !sodiumReady || !hasPub
   updateSelectedRecipientInfo()
@@ -1333,7 +1049,6 @@ function showRole(role){
   if(currentRole === "receiver"){
     hideRecipientGate()
     if(sodiumReady && (!ui.pub.value.trim() || !ui.priv.value.trim())) genkey()
-    loadCiphertexts(true)
     prepareReceiverHandoff()
   }else{
     hideReceiverHandoff()
@@ -1365,164 +1080,9 @@ function restoreSessionKeypair(){
   return true
 }
 
-function randomCiphertextName(){
-  return String(Math.floor(1000 + Math.random() * 9000))
-}
-
-function randomKeyName(){
-  return randomCiphertextName()
-}
-
 function shortValue(value){
   if(value.length <= 18) return value
   return `${value.slice(0, 8)}…${value.slice(-6)}`
-}
-
-function formatDate(value){
-  if(!value) return ""
-  const date = new Date(value)
-  if(Number.isNaN(date.getTime())) return ""
-  return date.toLocaleString(currentLang === "zh" ? "zh-CN" : "en")
-}
-
-async function apiJson(path, options = {}){
-  const res = await fetch(path, {
-    headers: {
-      "content-type": "application/json",
-      ...(options.headers || {})
-    },
-    ...options
-  })
-  let data = null
-  try{ data = await res.json() }catch{}
-  if(!res.ok){
-    throw new Error((data && data.error) || t("api.failed", { status: res.status }))
-  }
-  return data
-}
-
-async function loadTurnstileConfig(){
-  try{
-    turnstileConfigError = ""
-    const data = await apiJson("/api/config")
-    turnstileSiteKey = String(data.turnstileSiteKey || "").trim()
-  }catch(err){
-    turnstileConfigError = err.message
-  }finally{
-    turnstileConfigLoaded = true
-    updateKeyActions()
-    updateUploadSecurityFeedback()
-  }
-}
-
-function loadTurnstileScript(){
-  if(window.turnstile) return Promise.resolve()
-  if(turnstileReadyPromise) return turnstileReadyPromise
-
-  turnstileReadyPromise = new Promise((resolve, reject) => {
-    const script = document.createElement("script")
-    script.src = TURNSTILE_SCRIPT_URL
-    script.async = true
-    script.defer = true
-    script.onload = () => resolve()
-    script.onerror = () => reject(new Error(t("upload.scriptError")))
-    document.head.appendChild(script)
-  })
-
-  return turnstileReadyPromise
-}
-
-function settleTurnstile(error, token){
-  if(!pendingTurnstile) return
-  const { resolve, reject, timer } = pendingTurnstile
-  pendingTurnstile = null
-  clearTimeout(timer)
-  if(error){
-    reject(error)
-    return
-  }
-  resolve(token)
-}
-
-async function ensureTurnstileWidget(){
-  const securityMessage = uploadSecurityMessage()
-  if(securityMessage) throw new Error(securityMessage)
-
-  await loadTurnstileScript()
-  if(turnstileWidgetId !== null) return
-
-  turnstileWidgetId = window.turnstile.render(ui.turnstileMount, {
-    sitekey: turnstileSiteKey,
-    size: "invisible",
-    appearance: "execute",
-    execution: "execute",
-    callback: (token) => settleTurnstile(null, token),
-    "error-callback": () => settleTurnstile(new Error(t("upload.verifyFailed"))),
-    "expired-callback": () => settleTurnstile(new Error(t("upload.verifyExpired"))),
-    "timeout-callback": () => settleTurnstile(new Error(t("upload.verifyTimeout")))
-  })
-}
-
-async function requestTurnstileToken(){
-  if(pendingTurnstile) throw new Error(t("upload.inProgress"))
-  await ensureTurnstileWidget()
-
-  return new Promise((resolve, reject) => {
-    pendingTurnstile = {
-      resolve,
-      reject,
-      timer: setTimeout(
-        () => settleTurnstile(new Error(t("upload.verifyTimeout"))),
-        TURNSTILE_TIMEOUT_MS
-      )
-    }
-
-    try{
-      window.turnstile.reset(turnstileWidgetId)
-      window.turnstile.execute(turnstileWidgetId)
-    }catch(err){
-      settleTurnstile(err)
-    }
-  })
-}
-
-function resetTurnstile(){
-  if(window.turnstile && turnstileWidgetId !== null){
-    window.turnstile.reset(turnstileWidgetId)
-  }
-}
-
-function renderEmpty(container, text){
-  container.innerHTML = ""
-  const el = document.createElement("div")
-  el.className = "empty-list"
-  el.textContent = text
-  container.appendChild(el)
-}
-
-function renderRecords(container, records, getName, getMeta, onSelect){
-  container.innerHTML = ""
-  if(!records.length){
-    renderEmpty(container, t("common.empty"))
-    return
-  }
-  for(const record of records){
-    const button = document.createElement("button")
-    button.type = "button"
-    button.className = "record-item"
-
-    const name = document.createElement("span")
-    name.className = "record-name"
-    name.textContent = getName(record)
-
-    const meta = document.createElement("span")
-    meta.className = "record-meta"
-    meta.textContent = getMeta(record)
-
-    button.append(name, meta)
-    button.addEventListener("click", () => onSelect(record))
-    container.appendChild(button)
-  }
 }
 
 function encryptLinkForPublicKey(){
@@ -1659,32 +1219,6 @@ function updateRecipientUrl(publicKey){
   history.replaceState("", document.title, `${url.pathname}${url.search}${url.hash}`)
 }
 
-function showKeyShareModal(){
-  ui.keyShareName.value = ""
-  setModalFeedback(ui.keyShareFeedback, "")
-  updateKeyActions()
-  ui.keyShareModal.classList.remove("hidden")
-  updateUploadSecurityFeedback()
-  ui.keyShareName.focus()
-}
-
-function hideKeyShareModal(){
-  ui.keyShareModal.classList.add("hidden")
-}
-
-function showCipherShareModal(){
-  ui.cipherShareName.value = ""
-  setModalFeedback(ui.cipherShareFeedback, "")
-  updateKeyActions()
-  ui.cipherShareModal.classList.remove("hidden")
-  updateUploadSecurityFeedback()
-  ui.cipherShareName.focus()
-}
-
-function hideCipherShareModal(){
-  ui.cipherShareModal.classList.add("hidden")
-}
-
 async function genkey(options = {}){
   if(!sodiumReady) return
   if(options.confirmReplace && (ui.pub.value.trim() || ui.priv.value.trim())){
@@ -1702,7 +1236,6 @@ async function genkey(options = {}){
     saveSessionKeypair()
     updateKeyActions()
     setNotice(ui.keyNotice, t("receiver.keyReady"))
-    loadCiphertexts(true)
     prepareReceiverHandoff()
   }catch(err){
     setNotice(ui.keyNotice, t("keygen.failed", { message: err.message || String(err) }))
@@ -1730,7 +1263,6 @@ function openEncryptForPublicKey(publicKey, options = {}){
   ui.encryptOut.value = ""
   setNotice(ui.encryptNotice, t("sender.recipientApplied"))
   updateKeyActions()
-  hideCipherShareModal()
   hideRecipientGate()
   if(options.updateUrl !== false) updateRecipientUrl(publicKey)
   showRole("sender")
@@ -1745,17 +1277,6 @@ function usePastedRecipient(options = {}){
   }
   openEncryptForPublicKey(parsed.publicKey, options)
   return true
-}
-
-function selectPublicRecipient(publicKey){
-  const parsed = parseRecipient(publicKey)
-  if(parsed.error){
-    ui.recipientInput.value = publicKey
-    showRecipientGate()
-    setRecipientGateError(parsed.error)
-    return
-  }
-  openEncryptForPublicKey(parsed.publicKey)
 }
 
 async function encrypt(){
@@ -1847,146 +1368,8 @@ async function copyValue(value){
   }
 }
 
-async function saveCiphertext(){
-  try{
-    setNotice(ui.encryptNotice, "")
-    setModalFeedback(ui.cipherShareFeedback, "")
-    const ciphertext = ui.encryptOut.value.trim()
-    const recipientPublicKey = ui.encryptPub.value.trim()
-    if(!ciphertext || !recipientPublicKey){
-      setModalFeedback(ui.cipherShareFeedback, t("cipherModal.required"), "error")
-      return
-    }
-    const securityMessage = uploadSecurityMessage()
-    if(securityMessage){
-      setModalFeedback(ui.cipherShareFeedback, securityMessage, "error")
-      return
-    }
-    ui.modalSaveCipher.disabled = true
-    const cleanName = ui.cipherShareName.value.trim() || randomCiphertextName()
-    setModalFeedback(ui.cipherShareFeedback, t("cipherModal.verifying"))
-    const turnstileToken = await requestTurnstileToken()
-    setModalFeedback(ui.cipherShareFeedback, t("cipherModal.uploading"))
-    await apiJson("/api/ciphertexts", {
-      method: "POST",
-      body: JSON.stringify({ name: cleanName, ciphertext, recipientPublicKey, turnstileToken })
-    })
-    setModalFeedback(ui.cipherShareFeedback, t("cipherModal.uploaded"), "success")
-    loadCiphertexts(true)
-  }catch(err){
-    setModalFeedback(ui.cipherShareFeedback, t("cipherModal.uploadFailed", { message: err.message }), "error")
-  }finally{
-    resetTurnstile()
-    updateKeyActions()
-  }
-}
-
-function renderCiphertexts(){
-  const visibleRecords = ciphertextsExpanded
-    ? ciphertextRecords
-    : ciphertextRecords.slice(0, CIPHERTEXT_COLLAPSED_LIMIT)
-  renderRecords(
-    ui.ciphertextList,
-    visibleRecords,
-    (record) => record.name || t("common.untitled"),
-    (record) => formatDate(record.createdAt),
-    (record) => {
-      ui.decryptMsg.value = record.ciphertext || ""
-      decrypt()
-    }
-  )
-
-  const hasOverflow = ciphertextRecords.length > CIPHERTEXT_COLLAPSED_LIMIT
-  ui.toggleCiphertexts.classList.toggle("hidden", !hasOverflow)
-  ui.toggleCiphertexts.textContent = ciphertextsExpanded
-    ? t("common.showLatest", { count: CIPHERTEXT_COLLAPSED_LIMIT })
-    : t("common.showAll", { count: ciphertextRecords.length })
-}
-
-async function loadCiphertexts(silent = false){
-  try{
-    if(!silent) setNotice(ui.decryptNotice, "")
-    const pub = ui.pub.value.trim()
-    if(!pub){
-      ciphertextRecords = []
-      renderCiphertexts()
-      if(!silent) setNotice(ui.decryptNotice, t("receiver.decryptMissingKey"))
-      return
-    }
-    const data = await apiJson(`/api/ciphertexts?recipientPublicKey=${encodeURIComponent(pub)}`)
-    ciphertextRecords = data.records || []
-    renderCiphertexts()
-  }catch(err){
-    if(!silent) setNotice(ui.decryptNotice, t("load.failed", { message: err.message }))
-  }
-}
-
-async function uploadPublicKey(){
-  try{
-    setNotice(ui.keyNotice, "")
-    setModalFeedback(ui.keyShareFeedback, "")
-    const publicKey = ui.pub.value.trim()
-    if(!publicKey){
-      setModalFeedback(ui.keyShareFeedback, t("keyModal.generateFirst"), "error")
-      return
-    }
-    const securityMessage = uploadSecurityMessage()
-    if(securityMessage){
-      setModalFeedback(ui.keyShareFeedback, securityMessage, "error")
-      return
-    }
-    ui.modalUploadPub.disabled = true
-    const name = ui.keyShareName.value.trim() || randomKeyName()
-    setModalFeedback(ui.keyShareFeedback, t("keyModal.verifying"))
-    const turnstileToken = await requestTurnstileToken()
-    setModalFeedback(ui.keyShareFeedback, t("keyModal.uploading"))
-    await apiJson("/api/public-keys", {
-      method: "POST",
-      body: JSON.stringify({ publicKey, name, turnstileToken })
-    })
-    setModalFeedback(ui.keyShareFeedback, t("keyModal.uploaded"), "success")
-    await loadPublicKeys()
-  }catch(err){
-    setModalFeedback(ui.keyShareFeedback, t("keyModal.uploadFailed", { message: err.message }), "error")
-  }finally{
-    resetTurnstile()
-    updateKeyActions()
-  }
-}
-
-function renderPublicKeys(){
-  const visibleRecords = publicKeysExpanded
-    ? publicKeyRecords
-    : publicKeyRecords.slice(0, PUBLIC_KEY_COLLAPSED_LIMIT)
-  renderRecords(
-    ui.publicKeyList,
-    visibleRecords,
-    (record) => record.name || t("common.untitled"),
-    (record) => `${shortValue(record.publicKey || "")} · ${formatDate(record.createdAt)}`,
-    (record) => selectPublicRecipient(record.publicKey || "")
-  )
-
-  const hasOverflow = publicKeyRecords.length > PUBLIC_KEY_COLLAPSED_LIMIT
-  ui.togglePubKeys.classList.toggle("hidden", !hasOverflow)
-  ui.togglePubKeys.textContent = publicKeysExpanded
-    ? t("common.showLatest", { count: PUBLIC_KEY_COLLAPSED_LIMIT })
-    : t("common.showAll", { count: publicKeyRecords.length })
-}
-
-async function loadPublicKeys(){
-  try{
-    setNotice(ui.keyNotice, "")
-    const data = await apiJson("/api/public-keys")
-    publicKeyRecords = data.records || []
-    renderPublicKeys()
-  }catch(err){
-    setNotice(ui.keyNotice, t("load.publicKeysFailed", { message: err.message }))
-  }
-}
-
 ui.genBtn.addEventListener("click", () => genkey({ confirmReplace: true }))
 ui.copyLinkBtn.addEventListener("click", copyReceiverLink)
-ui.publishKeyBtn.addEventListener("click", showKeyShareModal)
 ui.receiverRole.addEventListener("click", () => showRole("receiver"))
 ui.senderRole.addEventListener("click", () => showRole("sender"))
 ui.changeRecipientBtn.addEventListener("click", () => showRecipientGate({ prefill: true }))
@@ -2021,53 +1404,10 @@ ui.copyCipherBtn.addEventListener("click", async () => {
   const copied = await copyValue(ui.encryptOut.value)
   setNotice(ui.encryptNotice, copied ? t("sender.copyCipherSuccess") : t("copy.failed"))
 })
-ui.uploadCipherBtn.addEventListener("click", showCipherShareModal)
-ui.modalUploadPub.addEventListener("click", uploadPublicKey)
-ui.modalCopyLink.addEventListener("click", async () => {
-  const link = encryptLinkForPublicKey()
-  if(!link) return
-  const copied = await copyValue(link)
-  setModalFeedback(
-    ui.keyShareFeedback,
-    copied ? t("keyModal.linkCopied") : t("keyModal.linkCopyFailed"),
-    copied ? "success" : "error"
-  )
-})
-ui.modalClose.addEventListener("click", hideKeyShareModal)
-ui.keyShareModal.addEventListener("click", (event) => {
-  if(event.target === ui.keyShareModal) hideKeyShareModal()
-})
-ui.modalSaveCipher.addEventListener("click", saveCiphertext)
-ui.modalCopyCipher.addEventListener("click", async () => {
-  const ciphertext = ui.encryptOut.value.trim()
-  if(!ciphertext) return
-  const copied = await copyValue(ciphertext)
-  setModalFeedback(
-    ui.cipherShareFeedback,
-    copied ? t("cipherModal.copied") : t("cipherModal.copyFailed"),
-    copied ? "success" : "error"
-  )
-})
-ui.cipherModalClose.addEventListener("click", hideCipherShareModal)
-ui.cipherShareModal.addEventListener("click", (event) => {
-  if(event.target === ui.cipherShareModal) hideCipherShareModal()
-})
-ui.togglePubKeys.addEventListener("click", () => {
-  publicKeysExpanded = !publicKeysExpanded
-  renderPublicKeys()
-})
-ui.toggleCiphertexts.addEventListener("click", () => {
-  ciphertextsExpanded = !ciphertextsExpanded
-  renderCiphertexts()
-})
-ui.refreshPubKeys.addEventListener("click", loadPublicKeys)
-ui.refreshCiphertexts.addEventListener("click", () => loadCiphertexts(false))
-
 ui.backToDecrypt.addEventListener("click", () => {
   history.replaceState("", document.title, location.pathname)
   ui.encryptPub.value = ""
   ui.encryptOut.value = ""
-  hideCipherShareModal()
   showRole("receiver")
   updateKeyActions()
 })
@@ -2076,7 +1416,7 @@ document.querySelectorAll("[data-lang-option]").forEach((el) => {
   el.addEventListener("click", () => setLanguage(el.dataset.langOption))
 })
 
-const selectable = [ui.pub, ui.priv, ui.encryptMsg, ui.encryptOut, ui.decryptMsg, ui.decryptOut, ui.keyShareName, ui.cipherShareName, ui.recipientInput, ui.receiverLinkPreview]
+const selectable = [ui.pub, ui.priv, ui.encryptMsg, ui.encryptOut, ui.decryptMsg, ui.decryptOut, ui.recipientInput, ui.receiverLinkPreview]
 selectable.forEach((el) => el.addEventListener("focus", () => el.select()))
 
 document.addEventListener("keydown", (event) => {
@@ -2085,9 +1425,7 @@ document.addEventListener("keydown", (event) => {
   if(!modal) return
 
   if(event.key === "Escape"){
-    if(modal === ui.keyShareModal) hideKeyShareModal()
-    if(modal === ui.cipherShareModal) hideCipherShareModal()
-    if(modal === ui.receiverHandoffModal || modal === ui.recipientGateModal) event.preventDefault()
+    event.preventDefault()
     return
   }
   if(event.key !== "Tab") return
@@ -2122,7 +1460,6 @@ window.addEventListener("load", () => {
   applyI18n()
   const saved = localStorage.getItem("theme") || "dark"
   applyTheme(saved === "light")
-  loadTurnstileConfig()
 
   const params = new URLSearchParams(location.search)
   const pubParam = params.get("pub")
@@ -2140,10 +1477,6 @@ window.addEventListener("load", () => {
     if(!restored && currentRole === "receiver"){
       genkey()
     }
-    loadPublicKeys()
-    loadCiphertexts(true)
-    setInterval(loadPublicKeys, PUBLIC_KEY_REFRESH_MS)
-    setInterval(() => loadCiphertexts(true), CIPHERTEXT_REFRESH_MS)
   })
 })
 </script>
