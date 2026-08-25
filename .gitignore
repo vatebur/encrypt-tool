@@ -1,29 +1,3 @@
-# Node
-node_modules/
-.npm/
-.npmrc
-npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
-pnpm-debug.log*
-
-# Builds
-/dist/
-/build/
-/out/
-
-# Env
-.env
-.env.*
-!.env.example
-!.env.sample
-.dev.vars
-
-# Wrangler
-.wrangler/
-.wrangler/state/
-.wrangler/cache/
-
 # OS / Editor
 .DS_Store
 Thumbs.db

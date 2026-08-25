@@ -1,82 +1,51 @@
 # 加密分享工具
 
-这是一个部署在 Cloudflare Workers 上的浏览器端加密工具。接收者生成接收链接并发给发送者；发送者在浏览器中加密内容，再通过自己的通信渠道把密文发回。Worker 只负责托管静态资源，不提供用户数据接口或存储。
+一个无需安装、无需构建、无需服务端的浏览器端加密工具。接收者生成接收链接并发给发送者；发送者在浏览器中加密内容，再通过自己的通信渠道把密文发回。密钥生成、加密和解密都在浏览器本地完成。
 
 ## 功能概览
 
-- 使用本地打包的 `libsodium-wrappers` 在浏览器中生成密钥对、加密和解密。
+- 使用本地打包的 libsodium 浏览器脚本生成密钥对、加密和解密。
 - 支持接收者与发送者两种引导流程。
 - 通过包含公钥的 `?pub=...` 链接交接接收码，也支持直接粘贴接收码。
 - 当前密钥对保存在浏览器的 `sessionStorage` 中，便于同一标签页会话内继续使用。
 - 支持复制接收链接、密文和明文；Clipboard API 不可用时会尝试降级复制。
 - 支持中英文和明暗主题。
+- 所有脚本和字体均随项目提供，可以完全离线使用。
 
 ## 项目结构
 
 ```text
 .
-├── public/
-│   ├── index.html                 # 前端页面、样式和浏览器端应用逻辑
-│   └── vendor/                    # 本地 vendor 的 libsodium ESM 文件
-├── src/
-│   └── index.js                   # Cloudflare Worker 静态资源入口
-├── wrangler.toml                  # Worker 和静态资源配置
-├── package.json                   # npm 脚本和依赖
-├── package-lock.json              # 锁定依赖版本
+├── index.html                     # 页面、样式和浏览器端应用逻辑
+├── vendor/
+│   ├── libsodium.js               # libsodium 传统浏览器脚本
+│   ├── libsodium-wrappers.js      # libsodium 高层 API
+│   └── fonts/                     # 页面使用的本地 WOFF2 字体
+├── README.md                      # 使用和部署说明
 └── AGENTS.md                      # 仓库协作和开发约定
 ```
 
-## 本地开发
+## 使用方式
 
-安装依赖：
+直接打开仓库根目录的 `index.html` 即可使用，无需联网或启动服务。
 
-```bash
-npm install
-```
-
-启动本地开发服务器：
+如需模拟静态托管环境，可以在仓库根目录启动任意静态 HTTP 服务器。例如：
 
 ```bash
-npm run dev
+python -m http.server 8000
 ```
 
-启动后访问终端输出的本地地址，通常是 `http://localhost:8787`。
+然后访问 `http://localhost:8000/`。
 
-如需使用 Cloudflare 远端开发环境：
+## 部署
 
-```bash
-npm run dev:remote
-```
+本项目不限定部署平台。将仓库根目录作为发布目录，部署到任意静态文件服务器或静态托管服务即可。
 
-## Cloudflare 配置
+部署要求：
 
-项目使用 `wrangler.toml` 配置 Worker：
-
-```toml
-name = "tool"
-main = "src/index.js"
-compatibility_date = "2026-03-10"
-preview_urls = false
-
-[assets]
-directory = "./public"
-binding = "ASSETS"
-```
-
-`ASSETS` binding 由 `src/index.js` 转发，用于提供 `public/` 目录中的静态文件。项目不需要额外的存储或第三方验证配置。
-
-## 部署到 Cloudflare
-
-```bash
-npm install
-npm run deploy
-```
-
-部署成功后，Wrangler 会输出 Worker 的访问地址。可以用下面的命令验证首页可访问：
-
-```bash
-curl -I https://<your-worker-host>/
-```
+- 入口文件为根目录的 `index.html`。
+- 不需要构建命令、服务端运行时或环境变量。
+- 静态文件路径和 URL 查询参数需要原样保留。
 
 ## 使用流程
 
@@ -87,8 +56,8 @@ curl -I https://<your-worker-host>/
 
 ## 安全说明
 
-- 加解密操作只在浏览器中进行；Worker 不提供数据 API，也不保存用户内容。
+- 加解密操作只在浏览器中进行，项目不包含用户数据接口或存储服务。
 - 接收链接包含公钥，可以分享；解锁码是私钥，必须保密。
 - 密钥对保存在当前浏览器会话的 `sessionStorage` 中。关闭标签页、清除会话数据或更换设备后，可能无法解开此前针对该密钥加密的内容。
 - 重新生成密钥后，旧密文不能使用新私钥解开。
-- 不要把 Cloudflare 凭据、私钥、明文、密文或测试敏感数据提交到仓库。
+- 不要把私钥、明文、密文或测试敏感数据提交到仓库。

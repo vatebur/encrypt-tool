@@ -5,9 +5,6 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>加密消息工具</title>
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='0.9em' font-size='90'%3E%F0%9F%94%92%3C/text%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com" crossorigin>
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&family=Oswald:wght@500;600&display=swap" rel="stylesheet">
 <script>
   (() => {
     const saved = localStorage.getItem("theme") || "dark"
@@ -15,6 +12,41 @@
   })()
 </script>
 <style>
+@font-face{
+  font-family:"IBM Plex Sans";
+  font-style:normal;
+  font-weight:300 700;
+  font-display:swap;
+  src:url("./vendor/fonts/ibm-plex-sans-300-700-latin.woff2") format("woff2");
+}
+@font-face{
+  font-family:"IBM Plex Mono";
+  font-style:normal;
+  font-weight:400;
+  font-display:swap;
+  src:url("./vendor/fonts/ibm-plex-mono-400-latin.woff2") format("woff2");
+}
+@font-face{
+  font-family:"IBM Plex Mono";
+  font-style:normal;
+  font-weight:500;
+  font-display:swap;
+  src:url("./vendor/fonts/ibm-plex-mono-500-latin.woff2") format("woff2");
+}
+@font-face{
+  font-family:"IBM Plex Mono";
+  font-style:normal;
+  font-weight:600;
+  font-display:swap;
+  src:url("./vendor/fonts/ibm-plex-mono-600-latin.woff2") format("woff2");
+}
+@font-face{
+  font-family:"Oswald";
+  font-style:normal;
+  font-weight:500 600;
+  font-display:swap;
+  src:url("./vendor/fonts/oswald-500-600-latin.woff2") format("woff2");
+}
 :root{
   --bg:#0d0f12;
   --panel:#15181e;
@@ -692,7 +724,9 @@ body::before{
   </div>
 </div>
 
-<script type="module">
+<script src="./vendor/libsodium.js"></script>
+<script src="./vendor/libsodium-wrappers.js"></script>
+<script>
 let sodiumReady = false
 let sodiumLib = null
 const SESSION_PUB_KEY = "receiverPublicKey"
@@ -998,8 +1032,8 @@ function enableButtons(){
 async function initSodium(){
   try{
     if(!sodiumLib){
-      const mod = await import("./vendor/libsodium-wrappers.mjs")
-      sodiumLib = mod.default || mod
+      sodiumLib = window.sodium
+      if(!sodiumLib) throw new Error("Encryption library failed to load.")
     }
     await sodiumLib.ready
     sodiumReady = true
