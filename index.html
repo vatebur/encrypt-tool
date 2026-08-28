@@ -637,12 +637,12 @@ body::before{
       <button id="receiverRole" class="role-card active" type="button" aria-pressed="true">
         <span class="role-current" data-i18n="role.current">当前身份</span>
         <span class="role-title" data-i18n="role.receiverTitle">我是接收者</span>
-        <span class="role-desc" data-i18n="role.receiverDesc">生成接收链接，发给别人；等对方把密文发回来后再解开。</span>
+        <span class="role-desc" data-i18n="role.receiverDesc">生成接收码，发给别人；等对方把密文发回来后再解开。</span>
       </button>
       <button id="senderRole" class="role-card" type="button" aria-pressed="false">
         <span class="role-current" data-i18n="role.current">当前身份</span>
         <span class="role-title" data-i18n="role.senderTitle">我是发送者</span>
-        <span class="role-desc" data-i18n="role.senderDesc">打开接收者给你的链接，写内容，加密后发回给接收者。</span>
+        <span class="role-desc" data-i18n="role.senderDesc">打开接收者给你的接收码，写内容，加密后发回给接收者。</span>
       </button>
     </div>
   </section>
@@ -672,7 +672,7 @@ body::before{
     <div class="separator"></div>
 
     <h3 class="section-title settings-head" data-i18n="receiver.settingsTitle">接收设置</h3>
-    <div class="subtle" data-i18n="receiver.settingsHelp">保管好解锁码；接收链接可以分享，解锁码不可以。</div>
+    <div class="subtle" data-i18n="receiver.settingsHelp">保管好解锁码；接收码可以分享，解锁码不可以。</div>
     <div class="row">
       <div>
         <div class="label strong" data-i18n="receiver.publicLabel">接收码（公钥）</div>
@@ -686,7 +686,7 @@ body::before{
     <div class="helper-box warning subtle" data-i18n="receiver.keyHint">不要分享解锁码。关闭标签页或换设备后，之前收到的内容可能无法再解开。</div>
 
     <div class="actions">
-      <button id="copyLinkBtn" class="btn primary copy-btn" disabled data-i18n="receiver.copyLink">复制接收链接</button>
+      <button id="copyLinkBtn" class="btn primary copy-btn" disabled data-i18n="receiver.copyLink">复制接收码</button>
       <button id="genBtn" class="btn secondary" disabled data-i18n="receiver.regenerate">重新生成</button>
     </div>
   </section>
@@ -738,20 +738,20 @@ body::before{
   <div class="modal-box handoff-box">
     <div class="handoff-content">
       <div class="handoff-eyebrow" data-i18n="receiverGate.eyebrow">开始接收前</div>
-      <h2 id="receiverHandoffTitle" class="section-title" data-i18n="receiverGate.title">先把接收链接发给发送者</h2>
-      <div id="receiverHandoffHelp" class="subtle" data-i18n="receiverGate.help">发送者需要这个链接才能为你生成密文。解锁码不会包含在链接中。</div>
+      <h2 id="receiverHandoffTitle" class="section-title" data-i18n="receiverGate.title">先把接收码发给发送者</h2>
+      <div id="receiverHandoffHelp" class="subtle" data-i18n="receiverGate.help">发送者需要这个接收码才能为你生成密文。解锁码不会包含在接收码中。</div>
       <div class="handoff-route" aria-hidden="true">
         <span data-i18n="receiverGate.routeFrom">你（接收者）</span>
         <span class="handoff-route-line"></span>
         <span data-i18n="receiverGate.routeTo">发送者</span>
       </div>
       <div class="handoff-link">
-        <div class="label strong" data-i18n="receiverGate.linkLabel">要发送的接收链接</div>
-        <input id="receiverLinkPreview" class="input mono" readonly placeholder="正在生成接收链接…" data-i18n-placeholder="receiverGate.linkLoading">
+        <div class="label strong" data-i18n="receiverGate.linkLabel">要发送的接收码（链接）</div>
+        <input id="receiverLinkPreview" class="input mono" readonly placeholder="正在生成接收码…" data-i18n-placeholder="receiverGate.linkLoading">
       </div>
       <div id="receiverHandoffFeedback" class="modal-feedback" role="status" aria-live="polite"></div>
       <div class="modal-actions">
-        <button id="receiverGateCopy" class="btn primary copy-btn" disabled data-i18n="receiverGate.copy">复制接收链接</button>
+        <button id="receiverGateCopy" class="btn primary copy-btn" disabled data-i18n="receiverGate.copy">复制接收码</button>
         <button id="receiverGateManual" class="btn secondary hidden" data-i18n="receiverGate.manualConfirm">我已手动复制，继续</button>
         <button id="receiverGateContinue" class="btn primary hidden" data-i18n="receiverGate.continue">我知道了，去粘贴密文</button>
         <button id="receiverGateToSender" class="btn secondary" data-i18n="receiverGate.toSender">我是发送者</button>
@@ -764,18 +764,18 @@ body::before{
   <div class="modal-box handoff-box">
     <div class="handoff-content">
       <div class="handoff-eyebrow" data-i18n="senderGate.eyebrow">开始发送前</div>
-      <h2 id="recipientGateTitle" class="section-title" data-i18n="senderGate.title">先确认接收者</h2>
-      <div id="recipientGateHelp" class="subtle" data-i18n="senderGate.help">粘贴接收者发给你的接收链接或接收码。没有它，内容无法加密给正确的人。</div>
+      <h2 id="recipientGateTitle" class="section-title" data-i18n="senderGate.title">先确认接收码</h2>
+      <div id="recipientGateHelp" class="subtle" data-i18n="senderGate.help">粘贴接收者发给你的接收码。没有它，内容无法加密给正确的人。</div>
       <div class="handoff-route" aria-hidden="true">
         <span data-i18n="senderGate.routeFrom">接收者</span>
         <span class="handoff-route-line"></span>
         <span data-i18n="senderGate.routeTo">你（发送者）</span>
       </div>
-      <div class="label strong" data-i18n="sender.pasteLabel">粘贴接收链接或接收码</div>
-      <input id="recipientInput" class="input mono" autocomplete="off" spellcheck="false" placeholder="https://example.com/?pub=... 或接收码" data-i18n-placeholder="sender.pastePlaceholder" aria-describedby="recipientGateError">
+      <div class="label strong" data-i18n="sender.pasteLabel">粘贴接收码</div>
+      <input id="recipientInput" class="input mono" autocomplete="off" spellcheck="false" placeholder="接收码（链接或编码）" data-i18n-placeholder="sender.pastePlaceholder" aria-describedby="recipientGateError">
       <div id="recipientGateError" class="field-error" role="alert"></div>
       <div class="modal-actions">
-        <button id="useRecipientInput" class="btn primary" disabled data-i18n="sender.useRecipient">使用这个接收者</button>
+        <button id="useRecipientInput" class="btn primary" disabled data-i18n="sender.useRecipient">使用这个接收码</button>
         <button id="recipientGateToReceiver" class="btn secondary" data-i18n="senderGate.backToReceiver">我是接收者</button>
       </div>
     </div>
@@ -800,13 +800,13 @@ let currentLang = normalizeLanguage(localStorage.getItem(LANGUAGE_KEY) || "zh")
 const messages = {
   zh: {
     "app.title": "加密消息工具",
-    "app.subtitle": "选择身份，安全地交接接收链接与密文。",
+    "app.subtitle": "选择身份，安全地交接接收码与密文。",
     "role.title": "你现在是谁？",
     "role.current": "当前身份",
     "role.receiverTitle": "我是接收者",
-    "role.receiverDesc": "生成接收链接，发给别人；等对方把密文发回来后再解开。",
+    "role.receiverDesc": "生成接收码，发给别人；等对方把密文发回来后再解开。",
     "role.senderTitle": "我是发送者",
-    "role.senderDesc": "打开接收者给你的链接，写内容，加密后发回给接收者。",
+    "role.senderDesc": "打开接收者给你的接收码，写内容，加密后发回给接收者。",
     "theme.toggleAria": "切换主题",
     "theme.switchToLight": "亮色",
     "theme.switchToDark": "暗色",
@@ -816,13 +816,13 @@ const messages = {
     "receiver.title": "解密收到的内容",
     "receiver.subtitle": "把发送者发回的密文粘贴到这里。解密只在当前浏览器中完成。",
     "receiver.settingsTitle": "接收设置",
-    "receiver.settingsHelp": "保管好解锁码；接收链接可以分享，解锁码不可以。",
+    "receiver.settingsHelp": "保管好解锁码；接收码可以分享，解锁码不可以。",
     "receiver.publicLabel": "接收码（公钥）",
     "receiver.privateLabel": "解锁码（私钥）",
     "receiver.publicPlaceholder": "正在准备接收码",
     "receiver.privatePlaceholder": "只给自己看，不要发给别人",
     "receiver.keyHint": "不要分享解锁码。关闭标签页或换设备后，之前收到的内容可能无法再解开。",
-    "receiver.copyLink": "复制接收链接",
+    "receiver.copyLink": "复制接收码",
     "receiver.regenerate": "重新生成",
     "receiver.encryptedLabel": "密文",
     "receiver.encryptedPlaceholder": "把收到的密文粘贴到这里",
@@ -830,9 +830,9 @@ const messages = {
     "receiver.copyPlain": "复制原文",
     "receiver.plainLabel": "原文",
     "receiver.plainPlaceholder": "解开后的原文会显示在这里",
-    "receiver.linkCopied": "接收链接已复制。把它发给发送者。",
-    "receiver.linkCopyFailed": "复制失败。请手动复制接收链接。",
-    "receiver.keyReady": "接收码已准备好。下一步：复制接收链接发给发送者。",
+    "receiver.linkCopied": "接收码已复制。把它发给发送者。",
+    "receiver.linkCopyFailed": "复制失败。请手动复制接收码。",
+    "receiver.keyReady": "接收码已准备好。下一步：复制接收码发给发送者。",
     "receiver.regenerateConfirm": "重新生成后，发给旧接收码的密文可能无法用新解锁码打开。确定重新生成吗？",
     "receiver.decryptMissingCipher": "请先粘贴密文。",
     "receiver.decryptMissingKey": "请先生成接收码。",
@@ -844,41 +844,41 @@ const messages = {
     "sender.noRecipient": "尚未选择接收码（公钥）。",
     "sender.selectedRecipient": "已选择接收码（公钥）：{code}",
     "sender.changeRecipient": "更换接收码（公钥）",
-    "sender.pasteLabel": "粘贴接收链接或接收码",
-    "sender.pastePlaceholder": "https://example.com/?pub=... 或接收码",
-    "sender.useRecipient": "使用这个接收者",
-    "sender.recipientLabel": "接收者的接收码（公钥）",
-    "sender.recipientPlaceholder": "先选择接收者",
+    "sender.pasteLabel": "粘贴接收码",
+    "sender.pastePlaceholder": "接收码（链接或编码）",
+    "sender.useRecipient": "使用这个接收码",
+    "sender.recipientLabel": "接收码（公钥）",
+    "sender.recipientPlaceholder": "先选择接收码",
     "sender.messageLabel": "要发送的内容",
     "sender.messagePlaceholder": "输入要加密的内容",
     "sender.encrypt": "加密",
     "sender.encryptedLabel": "密文",
     "sender.encryptedPlaceholder": "密文会显示在这里",
     "sender.copyCipher": "复制密文",
-    "sender.recipientApplied": "已使用这个接收者。现在可以输入要发送的内容。",
-    "sender.recipientMissing": "请先粘贴接收链接或接收码。",
+    "sender.recipientApplied": "已使用这个接收码。现在可以输入要发送的内容。",
+    "sender.recipientMissing": "请先粘贴接收码。",
     "sender.recipientChecking": "加密引擎正在准备，请稍等。",
-    "sender.recipientInvalidLink": "这不是有效的接收链接：链接中必须包含 pub 参数。",
-    "sender.recipientInvalidCode": "接收码无效。请粘贴完整的接收链接或接收码。",
-    "sender.encryptMissing": "接收者和要发送的内容都需要填写。",
+    "sender.recipientInvalidLink": "这不是有效的接收码（链接）：地址中必须包含 pub 参数。",
+    "sender.recipientInvalidCode": "接收码无效。请粘贴完整的接收码（链接或编码）。",
+    "sender.encryptMissing": "接收码和要发送的内容都需要填写。",
     "sender.encryptSuccess": "已加密。下一步：复制密文发回给接收者。",
     "sender.copyCipherSuccess": "密文已复制。",
     "receiverGate.eyebrow": "开始接收前",
-    "receiverGate.title": "先把接收链接发给发送者",
-    "receiverGate.help": "发送者需要这个链接才能为你生成密文。解锁码不会包含在链接中。",
+    "receiverGate.title": "先把接收码发给发送者",
+    "receiverGate.help": "发送者需要这个接收码才能为你生成密文。解锁码不会包含在接收码中。",
     "receiverGate.routeFrom": "你（接收者）",
     "receiverGate.routeTo": "发送者",
-    "receiverGate.linkLabel": "要发送的接收链接",
-    "receiverGate.linkLoading": "正在生成接收链接…",
-    "receiverGate.copy": "复制接收链接",
-    "receiverGate.copied": "已复制。现在把接收链接发给发送者，再继续等待密文。",
-    "receiverGate.copyFailed": "自动复制失败。请手动复制上面的完整链接，然后确认。",
+    "receiverGate.linkLabel": "要发送的接收码（链接）",
+    "receiverGate.linkLoading": "正在生成接收码…",
+    "receiverGate.copy": "复制接收码",
+    "receiverGate.copied": "已复制。现在把接收码发给发送者，再继续等待密文。",
+    "receiverGate.copyFailed": "自动复制失败。请手动复制上面的完整接收码，然后确认。",
     "receiverGate.manualConfirm": "我已手动复制，继续",
     "receiverGate.continue": "我知道了，去粘贴密文",
     "receiverGate.toSender": "我是发送者",
     "senderGate.eyebrow": "开始发送前",
-    "senderGate.title": "先确认接收者",
-    "senderGate.help": "粘贴接收者发给你的接收链接或接收码。没有它，内容无法加密给正确的人。",
+    "senderGate.title": "先确认接收码",
+    "senderGate.help": "粘贴接收者发给你的接收码。没有它，内容无法加密给正确的人。",
     "senderGate.routeFrom": "接收者",
     "senderGate.routeTo": "你（发送者）",
     "senderGate.backToReceiver": "我是接收者",
@@ -889,13 +889,13 @@ const messages = {
   },
   en: {
     "app.title": "Encryption Tool",
-    "app.subtitle": "Choose a role and securely hand off receiver links and ciphertext.",
+    "app.subtitle": "Choose a role and securely hand off receiver codes and ciphertext.",
     "role.title": "Who are you right now?",
     "role.current": "Current role",
     "role.receiverTitle": "I am the receiver",
-    "role.receiverDesc": "Create a receiver link, send it to someone, then unlock the ciphertext they send back.",
+    "role.receiverDesc": "Create a receiver code, send it to someone, then unlock the ciphertext they send back.",
     "role.senderTitle": "I am the sender",
-    "role.senderDesc": "Open the receiver's link, write your message, encrypt it, and send the ciphertext back.",
+    "role.senderDesc": "Open the receiver code you were given, write your message, encrypt it, and send the ciphertext back.",
     "theme.toggleAria": "Toggle theme",
     "theme.switchToLight": "Light",
     "theme.switchToDark": "Dark",
@@ -905,13 +905,13 @@ const messages = {
     "receiver.title": "Unlock a received message",
     "receiver.subtitle": "Paste the ciphertext sent back to you. It is unlocked only in this browser.",
     "receiver.settingsTitle": "Receiver settings",
-    "receiver.settingsHelp": "Keep the unlock code private. The receiver link is safe to share; the unlock code is not.",
+    "receiver.settingsHelp": "Keep the unlock code private. The receiver code is safe to share; the unlock code is not.",
     "receiver.publicLabel": "Receiver code (public key)",
     "receiver.privateLabel": "Unlock code (private key)",
     "receiver.publicPlaceholder": "Preparing receiver code",
     "receiver.privatePlaceholder": "Only for you. Do not share it.",
     "receiver.keyHint": "Do not share the unlock code. If you close this tab or switch devices, older messages may not be unlockable.",
-    "receiver.copyLink": "Copy receiver link",
+    "receiver.copyLink": "Copy receiver code",
     "receiver.regenerate": "Regenerate",
     "receiver.encryptedLabel": "Ciphertext",
     "receiver.encryptedPlaceholder": "Paste the ciphertext you received",
@@ -919,9 +919,9 @@ const messages = {
     "receiver.copyPlain": "Copy plaintext",
     "receiver.plainLabel": "Plaintext",
     "receiver.plainPlaceholder": "Unlocked plaintext appears here",
-    "receiver.linkCopied": "Receiver link copied. Send it to the sender.",
-    "receiver.linkCopyFailed": "Copy failed. Please copy the receiver link manually.",
-    "receiver.keyReady": "Receiver code is ready. Next: copy the receiver link and send it to the sender.",
+    "receiver.linkCopied": "Receiver code copied. Send it to the sender.",
+    "receiver.linkCopyFailed": "Copy failed. Please copy the receiver code manually.",
+    "receiver.keyReady": "Receiver code is ready. Next: copy it and send it to the sender.",
     "receiver.regenerateConfirm": "After regenerating, ciphertext sent to the old receiver code may not unlock with the new unlock code. Regenerate anyway?",
     "receiver.decryptMissingCipher": "Paste ciphertext first.",
     "receiver.decryptMissingKey": "Create a receiver code first.",
@@ -933,41 +933,41 @@ const messages = {
     "sender.noRecipient": "No receiver code (public key) selected.",
     "sender.selectedRecipient": "Receiver code (public key) selected: {code}",
     "sender.changeRecipient": "Change receiver code (public key)",
-    "sender.pasteLabel": "Paste receiver link or receiver code",
-    "sender.pastePlaceholder": "https://example.com/?pub=... or receiver code",
-    "sender.useRecipient": "Use this receiver",
-    "sender.recipientLabel": "Receiver's receiver code (public key)",
-    "sender.recipientPlaceholder": "Choose a receiver first",
+    "sender.pasteLabel": "Paste receiver code",
+    "sender.pastePlaceholder": "Receiver code (link or encoded value)",
+    "sender.useRecipient": "Use this receiver code",
+    "sender.recipientLabel": "Receiver code (public key)",
+    "sender.recipientPlaceholder": "Choose a receiver code first",
     "sender.messageLabel": "Message to send",
     "sender.messagePlaceholder": "Type the message to encrypt",
     "sender.encrypt": "Encrypt",
     "sender.encryptedLabel": "Ciphertext",
     "sender.encryptedPlaceholder": "Ciphertext appears here",
     "sender.copyCipher": "Copy ciphertext",
-    "sender.recipientApplied": "Receiver selected. Now type the message you want to send.",
-    "sender.recipientMissing": "Paste a receiver link or receiver code first.",
+    "sender.recipientApplied": "Receiver code selected. Now type the message you want to send.",
+    "sender.recipientMissing": "Paste a receiver code first.",
     "sender.recipientChecking": "The crypto engine is getting ready. Please wait.",
-    "sender.recipientInvalidLink": "This is not a valid receiver link. It must contain a pub parameter.",
-    "sender.recipientInvalidCode": "The receiver code is invalid. Paste the complete receiver link or code.",
-    "sender.encryptMissing": "Receiver and message are both required.",
+    "sender.recipientInvalidLink": "This is not a valid receiver code (link). The address must contain a pub parameter.",
+    "sender.recipientInvalidCode": "The receiver code is invalid. Paste the complete receiver code (link or encoded value).",
+    "sender.encryptMissing": "Receiver code and message are both required.",
     "sender.encryptSuccess": "Encrypted. Next: copy the ciphertext and send it back to the receiver.",
     "sender.copyCipherSuccess": "Ciphertext copied.",
     "receiverGate.eyebrow": "Before receiving",
-    "receiverGate.title": "Send your receiver link first",
-    "receiverGate.help": "The sender needs this link to encrypt a message for you. Your unlock code is never included.",
+    "receiverGate.title": "Send your receiver code first",
+    "receiverGate.help": "The sender needs this receiver code to encrypt a message for you. Your unlock code is never included.",
     "receiverGate.routeFrom": "You (receiver)",
     "receiverGate.routeTo": "Sender",
-    "receiverGate.linkLabel": "Receiver link to send",
-    "receiverGate.linkLoading": "Creating receiver link…",
-    "receiverGate.copy": "Copy receiver link",
-    "receiverGate.copied": "Copied. Send the receiver link to the sender, then wait for their ciphertext.",
-    "receiverGate.copyFailed": "Automatic copy failed. Copy the full link above manually, then confirm.",
+    "receiverGate.linkLabel": "Receiver code (link) to send",
+    "receiverGate.linkLoading": "Creating receiver code…",
+    "receiverGate.copy": "Copy receiver code",
+    "receiverGate.copied": "Copied. Send the receiver code to the sender, then wait for their ciphertext.",
+    "receiverGate.copyFailed": "Automatic copy failed. Copy the full receiver code above manually, then confirm.",
     "receiverGate.manualConfirm": "I copied it manually",
     "receiverGate.continue": "Got it — paste ciphertext",
     "receiverGate.toSender": "I am the sender",
     "senderGate.eyebrow": "Before sending",
-    "senderGate.title": "Confirm the receiver first",
-    "senderGate.help": "Paste the receiver link or code they sent you. It is required to encrypt for the right person.",
+    "senderGate.title": "Confirm the receiver code first",
+    "senderGate.help": "Paste the receiver code they sent you. It is required to encrypt for the right person.",
     "senderGate.routeFrom": "Receiver",
     "senderGate.routeTo": "You (sender)",
     "senderGate.backToReceiver": "I am the receiver",
